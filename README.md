@@ -2,6 +2,12 @@
 
 A single-screen dashboard for a door store's customer retention department. It tracks customer satisfaction and highlights customers at risk of churn. Built for the department manager.
 
+## Live demo
+
+https://hodaya73-prog.github.io/Customer-Success-DB/
+
+Published with GitHub Pages from the `main` branch. It uses fictitious sample data, and any changes you make stay in your own browser.
+
 ## Run it
 
 No installation or build step. Open [`index.html`](index.html) in a current browser (Chrome, Edge, Firefox or Safari), either by double-clicking it or from the file path.

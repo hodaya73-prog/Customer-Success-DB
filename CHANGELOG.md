@@ -4,7 +4,11 @@ All notable changes to this project are documented here, newest first. See [PRAC
 
 ## 2026-10-01 (later)
 
+### Added
+- GitHub Pages site for the dashboard: https://hodaya73-prog.github.io/Customer-Success-DB/ (served from `main`, root). The repository was made public, which GitHub Pages requires on the free plan.
+
 ### Changed
+- `README.md`: added the live demo link.
 - `index.html`: the "Open tickets" KPI card is now light red (was amber), and the "Add customer" button is mint green (was blue). The mint button uses dark text to keep contrast readable.
 - `SPEC.md`: color scheme and KPI emphasis updated to match.
 
