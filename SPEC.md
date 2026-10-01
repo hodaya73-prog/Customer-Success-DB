@@ -72,10 +72,12 @@ Each customer is a record with the following fields:
 
 **Computed fields (not stored):** `isActive`, `isAtRisk`.
 
+**`lastProduct` values:** stored and exported as language-independent keys: `entry`, `interior`, `safe_room`, `sliding`, `security`, `accessories`. The UI shows a translated label in the selected language. Import also accepts the English or Hebrew label, case-insensitive.
+
 ## 6. Mock Data File
 
 - File: `mock-customers.csv` in the project root, in CSV format (UTF-8 with BOM, so it opens correctly in Excel with Hebrew text).
-- About 40 customers with realistic Israeli names, cities and products.
+- 40 customers with realistic Israeli names, cities and products. Emails use the reserved `example.com` domain and phone numbers are fictitious, so no real person's data is included.
 - Deliberately distributed so every state appears in the dashboard: satisfaction of 1 and 2 (about 20% of customers), active and inactive customers, customers with 0 tickets and customers with several, and at least one customer who is both at risk and inactive.
 - Column headers in the file are in English (the keys from section 5), regardless of the UI language.
 - A browser blocks automatic reading of an external file when an HTML file is opened from disk. The mock data is therefore also embedded inside `index.html`, so the first-launch load does not depend on the file. `mock-customers.csv` remains a sample file that can be imported at any time. CSV import and export are always available through the buttons (sections 7.7 and 7.8).
