@@ -5,6 +5,9 @@ All notable changes to this project are documented here, newest first. See [PRAC
 ## 2026-10-01 (later)
 
 ### Added
+- Airtable base "Customer Retention" with a `Customers` table, loaded from `mock-customers.csv` as committed in this repo (40 rows). This is groundwork for connecting the dashboard to Airtable; the dashboard itself is unchanged and still uses browser storage. Field mapping (names match the CSV columns): `name` (primary, text), `id` (text, unique key), `phone` (text), `email` (email), `city` (text), `lastPurchaseDate` (date, ISO), `totalPurchases` (currency, ₪), `lastProduct` (single select: entry, interior, safe_room, sliding, security, accessories), `satisfaction` (rating, 1-5 stars), `openTickets` (integer).
+
+### Added
 - GitHub Pages site for the dashboard: https://hodaya73-prog.github.io/Customer-Success-DB/ (served from `main`, root). The repository was made public, which GitHub Pages requires on the free plan.
 
 ### Changed
