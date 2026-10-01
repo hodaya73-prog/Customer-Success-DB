@@ -104,6 +104,7 @@ Each customer is a record with the following fields:
 - **At-risk customer** (satisfaction ≤ 2): the row is highlighted in red (light red background and a red badge or dot in the satisfaction column). The highlight does not rely on color alone: a text badge "At risk" is also shown.
 - The satisfaction column shows the number with a simple visual indicator (dots or a colored badge).
 - Open tickets column: a value greater than 0 is shown in bold.
+- Last purchase column: customers who are not active show a small "Inactive" tag next to the date.
 - Header with a counter: "Showing X of Y customers".
 - Empty state: a friendly message ("No customers found") with a suggestion to clear the filters.
 - **Sorting:** clicking a column header sorts ascending, a second click sorts descending, and a third click clears the sort. An arrow next to the header shows the direction. Default sort: satisfaction from low to high, so at-risk customers appear first.
@@ -140,7 +141,7 @@ Each customer is a record with the following fields:
 ### 7.7 CSV Import
 
 - An "Import" button opens a file picker (`.csv`).
-- The file must include the column headers from section 5 (header check).
+- The file must include the column headers from section 5 (header check). Comma and semicolon delimiters are both detected automatically. A provided `id` may contain letters, digits, hyphens and underscores, up to 30 characters.
 - Every row goes through the same validation as manual add. Invalid rows are not loaded, and a summary is shown at the end: "X rows loaded, Y rejected", with the reason for each rejected row.
 - **Merge by ID:** a row whose `id` already exists in the system updates the existing customer. A row with a new `id` is added. Customers that are not in the file are not deleted. A row without an `id` gets a new `id` automatically.
 - **Duplicate warning:** before the import is applied, a summary dialog shows how many new customers will be added, how many existing customers will be updated (with the list of IDs), and how many rows were rejected. The user chooses "Confirm" or "Cancel".
