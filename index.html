@@ -57,6 +57,8 @@
   .btn:hover { background: #f8fafc; border-color: #cfd6e2; }
   .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
   .btn.primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+  .btn.mint { background: #6ee7b7; border-color: #6ee7b7; color: #064e3b; }
+  .btn.mint:hover { background: #4fd8a5; border-color: #4fd8a5; }
   .btn.danger { background: var(--red); border-color: var(--red); color: #fff; }
   .btn.danger:hover { background: #b91c1c; border-color: #b91c1c; }
   .btn.ghost { border-color: transparent; background: transparent; color: var(--muted); font-weight: 500; }
@@ -66,10 +68,10 @@
   /* KPI */
   .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
   .kpi { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px; border-top: 4px solid var(--primary); }
-  .kpi.warn { border-top-color: #f59e0b; background: var(--amber-bg); }
+  .kpi.warn { border-top-color: #f87171; background: var(--red-bg); }
   .kpi-label { font-size: 14px; color: var(--muted); font-weight: 600; }
   .kpi-value { font-size: 34px; font-weight: 700; line-height: 1.15; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
-  .kpi.warn .kpi-value { color: var(--amber); }
+  .kpi.warn .kpi-value { color: var(--red-text); }
   .kpi-sub { font-size: 13px; color: var(--muted); }
   .kpi-sub.risk { color: var(--red-text); font-weight: 600; }
 
@@ -190,7 +192,7 @@
       <div class="toolbar-buttons">
         <button type="button" class="btn" id="btnImport" data-i18n="import"></button>
         <button type="button" class="btn" id="btnExport" data-i18n="export"></button>
-        <button type="button" class="btn primary" id="btnAdd" data-i18n="add"></button>
+        <button type="button" class="btn mint" id="btnAdd" data-i18n="add"></button>
       </div>
     </div>
     <div class="filters">

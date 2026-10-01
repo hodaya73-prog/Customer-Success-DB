@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here, newest first. See [PRACTICE.md](PRACTICE.md) for how this file is maintained.
 
+## 2026-10-01 (later)
+
+### Changed
+- `index.html`: the "Open tickets" KPI card is now light red (was amber), and the "Add customer" button is mint green (was blue). The mint button uses dark text to keep contrast readable.
+- `SPEC.md`: color scheme and KPI emphasis updated to match.
+
 ## 2026-10-01
 
 ### Added

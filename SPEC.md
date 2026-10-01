@@ -166,9 +166,9 @@ Each customer is a record with the following fields:
 ## 8. Design and UX Requirements
 
 - **Layout:** header (the name "Customer Retention Dashboard" in both languages + language toggle) → KPI row → toolbar (search, filters, import, export, add) → table.
-- **Color scheme:** light background, white cards, one calm primary color (blue). Red is reserved **only** for risk, so it draws the eye.
+- **Color scheme:** light background, white cards, one calm primary color (blue). Red is used only for risk and for the "Open tickets" card, and the "Add customer" button is mint green.
 - **Typography:** system fonts only (`system-ui`, `Segoe UI`, `Arial`, sans-serif), which support Hebrew and work offline. Readable size, high contrast.
-- **KPIs:** a large, clear number with a small label below it. The "Open tickets" card gets a subtle emphasis when the value is greater than 0.
+- **KPIs:** a large, clear number with a small label below it. The "Open tickets" card is shown in light red when the value is greater than 0.
 - **Accessibility:** WCAG AA contrast, keyboard navigation, labels on all fields, dialogs with focus management, and risk highlighting that does not rely on color alone.
 - **Responsiveness:** designed primarily for desktop. On narrow screens the table scrolls horizontally and the KPIs switch to a 2×2 grid.
 - **Feedback:** short toast messages for add, edit, delete, import and export.
