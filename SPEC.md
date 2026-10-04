@@ -38,8 +38,8 @@ A door store runs a customer retention department. The department manager needs 
 
 | Topic | Decision |
 |---|---|
-| Technology | Vite project: HTML + CSS + JavaScript (vanilla modules), no UI framework. The production build is static files. The Vite dev server and `vite preview` also run a small server-side Airtable proxy (section 7.10) |
-| Data persistence | Browser `localStorage` by default. Mock data is loaded on first launch. A "Reset" button restores the mock data. CSV export serves as the backup. Optionally the customers are stored in Airtable, reached through the server-side proxy (section 7.10) |
+| Technology | HTML + CSS + JavaScript (vanilla) in a single file, no build step, no installation |
+| Data persistence | Browser `localStorage` by default. Mock data is loaded on first launch. A "Reset" button restores the mock data. CSV export serves as the backup. Optionally the dashboard connects directly to an Airtable base and stores the customers there (section 7.10) |
 | Customer fields | The recommended set of 10 fields (section 5) |
 | Filtering | "Filtering" and "screening" are treated as the same thing. The filters are chosen at the team's discretion (section 7.3) |
 | Font | System fonts only, nothing loaded from the internet |
@@ -81,7 +81,7 @@ Each customer is a record with the following fields:
 - 40 customers with realistic Israeli names, cities and products. Emails use the reserved `example.com` domain and phone numbers are fictitious, so no real person's data is included.
 - Deliberately distributed so every state appears in the dashboard: satisfaction of 1 and 2 (about 20% of customers), active and inactive customers, customers with 0 tickets and customers with several, and at least one customer who is both at risk and inactive.
 - Column headers in the file are in English (the keys from section 5), regardless of the UI language.
-- The mock data is bundled into the application at build time straight from `mock-customers.csv`, so there is a single source of truth and no copy to keep in sync. The file also remains a sample that can be imported at any time. CSV import and export are always available through the buttons (sections 7.7 and 7.8).
+- A browser blocks automatic reading of an external file when an HTML file is opened from disk. The mock data is therefore also embedded inside `index.html`, so the first-launch load does not depend on the file. `mock-customers.csv` remains a sample file that can be imported at any time. CSV import and export are always available through the buttons (sections 7.7 and 7.8).
 - Purchase dates in the mock data are fixed in the file (generated relative to 2026-10-01), so over time more customers will count as inactive. This is expected, because "active" is evaluated against today's date.
 
 ## 7. Functional Requirements
@@ -164,18 +164,18 @@ Each customer is a record with the following fields:
 - Date and number formats follow the selected language.
 - The selected language is saved in `localStorage` (default: Hebrew).
 
-### 7.10 Airtable Connection (optional, server-side)
+### 7.10 Airtable Connection (optional)
 
-- The Airtable credentials live in a `.env` file on the machine that runs the dashboard server: `AIRTABLE_TOKEN`, `AIRTABLE_BASE_ID` and optionally `AIRTABLE_TABLE` (default `Customers`). `.env` is git-ignored; `.env.example` is the committed template. These names must not start with `VITE_`, because Vite copies such variables into the public JavaScript.
-- **The browser never sees the token.** The page calls its own `/api/customers`. The Vite server (dev server or `vite preview`) validates the request, adds the token and forwards it to Airtable. Only the customers table is reachable, and only list (GET), create (POST), update (PATCH) and delete of one record (DELETE).
-- There is no manual settings dialog. On start the page asks `/api/status`. If the server has credentials, the dashboard connects automatically and shows "Connected to Airtable" to everyone who opens it from that server. Otherwise (for example on GitHub Pages, which has no server) it uses the local sample data and shows "Local sample data".
-- On connect the dashboard loads all records (paginated). If loading fails, the reason is shown with a Retry button, and nothing is saved. A response that is not JSON counts as a failure.
+- A "Connect to Airtable" button in the header opens a dialog with three fields: Base ID, table name (default `Customers`) and a personal access token.
+- **The token is never part of the code or the repository.** The page is public, so the manager types the token once; it is stored in that browser's `localStorage` and sent only to `https://api.airtable.com`. A Content-Security-Policy in the page blocks every other network destination.
+- The token needs `data.records:read` and `data.records:write` on the one base only.
+- On connect the dashboard loads all records (paginated) and shows a "Connected to Airtable" indicator. If loading fails, the reason is shown with a Retry button, and nothing is saved.
 - Field mapping uses the same names as the CSV columns (section 5). Airtable stores `lastProduct` as a single select with the keys from section 5 and `satisfaction` as a 1-5 rating.
 - While connected, add, edit, delete and import write to Airtable first and update the screen only after Airtable confirms. A failed write shows an error message and leaves the screen unchanged. Writes are sent in batches of 10 records, and import keeps the merge-by-ID rules of section 7.7.
 - Airtable data is never copied into `localStorage`. "Reset data" is hidden while connected, and a "Refresh from Airtable" button reloads the records, for example after someone edits Airtable directly.
 - Records created by hand in Airtable without a customer ID get the next free ID automatically (written back to Airtable) so they can be edited. A record without a rating is shown with a dash, is not treated as at risk, and is excluded from the average.
-- A Content-Security-Policy limits the page to requests to its own origin.
-- Limits: there is no login. Everyone who can reach the server can read and change all customers, so run it only on a trusted network or put authentication in front of it before exposing it to the internet. The public GitHub Pages site has no server and therefore cannot connect to Airtable. Rotate the token in Airtable if it is ever exposed.
+- "Disconnect" removes the saved token and returns to the local sample data.
+- Limits: anyone who can open the dashboard in the same browser profile can use the saved token, and there is still no login. Rotate the token in Airtable if it is ever exposed.
 
 ## 8. Design and UX Requirements
 
@@ -190,7 +190,7 @@ Each customer is a record with the following fields:
 ## 9. Non-Functional Requirements
 
 - **Performance:** instant response with up to a few thousand customers.
-- **Privacy:** by default all data stays in the browser. Nothing is sent to a server, there are no external libraries, and no fonts or files are loaded from the internet. When connected to Airtable, customer data is exchanged with Airtable through the server, and the token never reaches the browser.
+- **Privacy:** by default all data stays in the browser. Nothing is sent to a server, there are no external libraries, and no fonts or files are loaded from the internet. When connected to Airtable, customer data and the token go only to `api.airtable.com`.
 - **Compatibility:** current versions of Chrome, Edge, Firefox and Safari.
 - **Security:** content coming from a CSV is rendered as text and never executed (HTML escaping), to prevent code injection. On export, cells starting with `=`, `+`, `-` or `@` are neutralized (CSV injection).
 - **Data retention:** clearing browser data deletes the data. Export therefore serves as the backup, and a reminder is shown in the interface.
@@ -207,7 +207,7 @@ Each customer is a record with the following fields:
 8. Exporting and then importing the same file restores exactly the same data. Hebrew displays correctly in Excel.
 9. Import merges by ID, shows a warning about existing records and duplicates before applying, and rejects faulty rows with an accurate summary.
 10. Switching language changes all text and the direction (RTL/LTR) without a refresh and without losing filters or data.
-11. With the server configured through `.env`, the dashboard connects automatically, loads the table, writes add/edit/delete/import to Airtable, shows an error without changing the screen when a write fails, and the token appears nowhere in the browser, the built files or the repository. Without credentials it falls back to the local sample data.
+11. Connected to Airtable, the dashboard loads the table, writes add/edit/delete/import to Airtable, shows an error without changing the screen when a write fails, and never stores the token in the repository or customer data in `localStorage`.
 12. There are no console errors in any of these scenarios.
 
 ## 11. Test Strategy
@@ -222,10 +222,7 @@ Each customer is a record with the following fields:
 |---|---|
 | `SPEC.md` | This document |
 | `mock-customers.csv` | Mock data |
-| `index.html`, `src/main.js`, `src/style.css` | The dashboard |
-| `vite.config.js` | Build settings and the server-side Airtable proxy |
-| `.env.example` | Template for the local `.env` (never commit the real one) |
-| `.github/workflows/pages.yml` | Builds the site and publishes it to GitHub Pages |
+| `index.html` | The dashboard (single file) |
 | `README.md` | Updated with run instructions |
 
 ---
@@ -244,5 +241,4 @@ Each customer is a record with the following fields:
 | 8 | Font | System font |
 | 9 | Product name | Customer Retention Dashboard |
 | 10 | Risk threshold | Fixed at 2 or below |
-| 11 | Airtable | Optional connection through a server-side proxy. Credentials come from `.env` on the server, never from the browser or the repository (section 7.10) |
-| 12 | Build tool | Vite, replacing the single HTML file, so environment variables can be read safely on the server side |
+| 11 | Airtable | Optional direct connection from the browser. The token is entered by the manager and kept only in that browser, never in the repository (section 7.10) |

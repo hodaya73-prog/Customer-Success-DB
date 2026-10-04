@@ -2,22 +2,11 @@
 
 All notable changes to this project are documented here, newest first. See [PRACTICE.md](PRACTICE.md) for how this file is maintained.
 
-## 2026-10-04 (Vite migration)
+## 2026-10-04 (revert)
 
 ### Changed
-- Migrated the dashboard from one HTML file to a Vite project: `index.html` (markup), `src/main.js` (logic), `src/style.css` (styles), with `package.json` and `vite.config.js`. Behaviour of the dashboard is unchanged. The mock data is now imported from `mock-customers.csv` at build time instead of being pasted into the page.
-- Airtable access moved to the server side. A small proxy in `vite.config.js` reads `AIRTABLE_TOKEN`, `AIRTABLE_BASE_ID` and `AIRTABLE_TABLE` from `.env`, adds the token to each request and forwards it to Airtable. The browser only calls its own `/api/customers`, and only the customers table and the operations the dashboard needs are allowed. Replaces the browser-side token from earlier today.
-- The dashboard now connects automatically when the server has credentials. On a static host such as GitHub Pages it shows the local sample data.
-- The Content-Security-Policy now allows only the page's own origin.
-- A response that is not JSON is treated as a failed request.
-- GitHub Pages is now built and deployed by `.github/workflows/pages.yml` (build the Vite project, publish `dist/`).
-- `README.md`: Node setup, step-by-step `.env` instructions and a note on who can see the data. `SPEC.md`: technology, section 7.10, privacy, acceptance criterion 11 and decisions 11 and 12 updated.
-
-### Added
-- `.env.example` (template), `.gitignore` (ignores `.env`, `node_modules/` and `dist/`) and `package.json` with `vite` as the only dependency.
-
-### Removed
-- The "Connect to Airtable" button and dialog, and storing the token in the browser.
+- Reverted the Vite migration (commit `4138643`) at the owner's request. The project is back to the single-file `index.html` with the optional in-browser Airtable connection (Base ID, table name and token typed into the "Connect to Airtable" dialog, stored only in that browser). The Vite commit stays in the git history and can be restored.
+- GitHub Pages serves the repository root from `main` again, and the Pages workflow, `package.json`, `vite.config.js`, `src/` and `.env.example` are removed.
 
 ## 2026-10-04
 
