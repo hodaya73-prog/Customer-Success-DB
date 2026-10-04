@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here, newest first. See [PRACTICE.md](PRACTICE.md) for how this file is maintained.
 
+## 2026-10-04 (Airtable table instead of interface page)
+
+### Added
+- Airtable table "נדרשת פעולה דחופה" in the Customer Retention base, filled with the customers who satisfy the "action required" rule: C-0010 (נועה פרידמן) and C-0037 (רותם עטיה). Fields are the `Customers` columns, with `lastProduct` as plain text and `satisfaction` as a number so no colors appear, plus `apifyRunId` (`QzkEkCdSJOoayzjgE`) and `scanDate` (2026-10-04). It is a snapshot; there is no schedule or automation, so it does not refresh when Apify runs again.
+
+### Removed
+- The Airtable interface "Customer Retention" and its page "נדרשת פעולה דחופה" (added earlier today), replaced by the table above. The `Customers` table was not changed.
+- `SPEC.md` (section 7.11, criterion 14, decision 14) and `README.md` updated to describe the table instead of the interface page.
+
 ## 2026-10-04 (Apify evidence)
 
 ### Added
