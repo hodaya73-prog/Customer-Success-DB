@@ -26,6 +26,7 @@ A door store runs a customer retention department. The department manager needs 
 - Hebrew/English language switch, including text direction (RTL/LTR).
 - Mock data loaded on first launch.
 - Optional connection to an Airtable base, as an alternative to browser storage (section 7.10).
+- Competitor-sale watch: an "Action required" flag and an "Urgent action required" KPI for customers exposed to active competitor sales (section 7.11).
 
 **Out of scope (V1):**
 
@@ -52,6 +53,7 @@ A door store runs a customer retention department. The department manager needs 
 | Active customer | A customer whose last purchase date falls within the 365 days before today's actual date (evaluated on every load). A purchase exactly 365 days ago counts as active; 366 days or more does not |
 | Satisfaction | An integer from 1 to 5 (1 = low, 5 = high) |
 | At-risk customer | Satisfaction **less than or equal to 2** (that is, 1 or 2). Shown in red |
+| Action-required customer | While competitor sales are active (section 7.11): last product is an entry door (`entry`) or a steel security door (`security`) **and** satisfaction is exactly 3. Shown in light orange. Never overlaps with at-risk, because at-risk customers have satisfaction 2 or lower |
 | Open tickets | An integer ≥ 0 per customer. The KPI shows the sum of tickets across all customers |
 
 ## 5. Data Model
@@ -86,7 +88,7 @@ Each customer is a record with the following fields:
 
 ## 7. Functional Requirements
 
-### 7.1 KPI Row (4 cards)
+### 7.1 KPI Row (5 cards)
 
 | KPI | Calculation |
 |---|---|
@@ -94,6 +96,7 @@ Each customer is a record with the following fields:
 | Active customers | Number of customers who purchased within the last 365 days |
 | Average satisfaction | Mean `satisfaction` across all customers, shown with one decimal place (for example 3.4 out of 5) |
 | Open tickets | Sum of `openTickets` across all customers |
+| Urgent action required | Number of action-required customers (section 7.11). Light-orange card; its sub-text states the rule, or that no competitor sales are active (value 0) |
 
 - KPIs update immediately after add, edit, delete and import.
 - KPIs are calculated over the entire customer base and are not affected by filters or search.
@@ -102,6 +105,7 @@ Each customer is a record with the following fields:
 ### 7.2 Customer Table
 
 - Placed below the KPIs and shows all 10 fields.
+- **Action-required customer** (section 7.11): the whole row has a light-orange background and a light-orange "Action required" badge sits under the rating. The stored satisfaction is not changed. The text badge means the highlight does not rely on color alone.
 - **At-risk customer** (satisfaction ≤ 2): the row is highlighted in red (light red background and a red badge or dot in the satisfaction column). The highlight does not rely on color alone: a text badge "At risk" is also shown.
 - The satisfaction column shows the number with a simple visual indicator (dots or a colored badge).
 - Open tickets column: a value greater than 0 is shown in bold.
@@ -110,6 +114,8 @@ Each customer is a record with the following fields:
 - Empty state: a friendly message ("No customers found") with a suggestion to clear the filters.
 - **Sorting:** clicking a column header sorts ascending, a second click sorts descending, and a third click clears the sort. An arrow next to the header shows the direction. Default sort: satisfaction from low to high, so at-risk customers appear first.
 - Actions column in every row: edit and delete.
+- **Nothing is cut off:** the table always fits its container. Up to 1100 px wide it is a normal table with all 11 columns (text wraps inside cells, edit and delete are stacked). Below that, every customer becomes a card showing every field with its label, and a "Sort" dropdown replaces the column headers. There is no horizontal scrolling on the page.
+- All fields run right to left in Hebrew (the ID column is on the right). Phone numbers and emails keep left-to-right digits and characters inside their cells.
 
 ### 7.3 Search and Filters
 
@@ -177,14 +183,23 @@ Each customer is a record with the following fields:
 - "Disconnect" removes the saved token and returns to the local sample data.
 - Limits: anyone who can open the dashboard in the same browser profile can use the saved token, and there is still no login. Rotate the token in Airtable if it is ever exposed.
 
+### 7.11 Competitor-Sale Watch (Action Required)
+
+- **Trigger:** a Google Search scrape through Apify (`apify/google-search-scraper`, country Israel, Hebrew) for phrases such as "מבצע דלת כניסה", "הנחה על פלדלת" and the names Rav-Bariach, Hamadia and Reshafim. The scrape is run by hand (through Claude) and is not part of the page; the result is recorded as the constant `COMPETITOR_PROMO_ACTIVE` in `index.html`.
+- **Last check (2026-10-04):** sales are active. Rav-Bariach: a one-week sale with 15% off entry and interior doors and 10% off selected models, plus a paid Google ad. Hamadia (merged with Reshafim): up to 18% off entry and interior doors from 22.9.26 to 6.10.26. Gaash, Isradoor, Lee Door and Oz Doors also advertise entry-door sales.
+- **Rule:** while `COMPETITOR_PROMO_ACTIVE` is `true`, a customer is action-required when `lastProduct` is `entry` or `security` and `satisfaction` is exactly 3. When the constant is `false`, no customer is flagged and the KPI shows 0.
+- **Display only:** the flag is computed in the page and never written to the data, so satisfaction stays 3, and nothing is written to Airtable or CSV.
+- **Display:** light-orange row, light-orange "Action required" badge (Hebrew: "נדרשת פעולה") under the rating, and the "Urgent action required" KPI card (section 7.1). Both language versions are translated.
+- **Airtable tab:** the Airtable base has an interface "Customer Retention" with a page "נדרשת פעולה דחופה", a grid of the `Customers` table with a fixed filter (`satisfaction` = 3 and `lastProduct` is `entry` or `security`). It is a snapshot of the same rule at the time of the scrape. The Airtable tools in use cannot create a grid view inside the table itself, so this page is the tab; the manager can create an equivalent grid view by hand with the same two filters. If the constant is switched off, the page should be hidden or deleted by hand.
+
 ## 8. Design and UX Requirements
 
 - **Layout:** header (the name "Customer Retention Dashboard" in both languages + language toggle) → KPI row → toolbar (search, filters, import, export, add) → table.
-- **Color scheme:** light background, white cards, one calm primary color (blue). Red is used only for risk and for the "Open tickets" card, and the "Add customer" button is mint green.
+- **Color scheme:** light background, white cards, one calm primary color (blue). Red is used only for risk and for the "Open tickets" card, light orange only for the action-required flag and its KPI card, and the "Add customer" button is mint green.
 - **Typography:** system fonts only (`system-ui`, `Segoe UI`, `Arial`, sans-serif), which support Hebrew and work offline. Readable size, high contrast.
 - **KPIs:** a large, clear number with a small label below it. The "Open tickets" card is shown in light red when the value is greater than 0.
 - **Accessibility:** WCAG AA contrast, keyboard navigation, labels on all fields, dialogs with focus management, and risk highlighting that does not rely on color alone.
-- **Responsiveness:** designed primarily for desktop. On narrow screens the table scrolls horizontally and the KPIs switch to a 2×2 grid.
+- **Responsiveness:** the five KPIs are in one row on wide screens, 3 + 2 up to 1100 px, and one per row on phones. The table follows section 7.2 (full table, then cards), with no horizontal scrolling and no cut-off fields.
 - **Feedback:** short toast messages for add, edit, delete, import and export.
 
 ## 9. Non-Functional Requirements
@@ -197,7 +212,7 @@ Each customer is a record with the following fields:
 
 ## 10. Acceptance Criteria
 
-1. On first launch the mock customers load, and the four KPIs show correct values, verified against a manual calculation on the file.
+1. On first launch the mock customers load, and the five KPIs show correct values, verified against a manual calculation on the file.
 2. Every customer with satisfaction 1 or 2 is highlighted in red, and no customer with 3 or higher is.
 3. Adding a customer with valid data updates the table and KPIs immediately and persists after a refresh.
 4. Adding with invalid data is blocked with an error message on the relevant field.
@@ -208,7 +223,10 @@ Each customer is a record with the following fields:
 9. Import merges by ID, shows a warning about existing records and duplicates before applying, and rejects faulty rows with an accurate summary.
 10. Switching language changes all text and the direction (RTL/LTR) without a refresh and without losing filters or data.
 11. Connected to Airtable, the dashboard loads the table, writes add/edit/delete/import to Airtable, shows an error without changing the screen when a write fails, and never stores the token in the repository or customer data in `localStorage`.
-12. There are no console errors in any of these scenarios.
+12. With the mock data and `COMPETITOR_PROMO_ACTIVE` = `true`, exactly C-0010 and C-0037 have a light-orange row and the "Action required" badge, the "Urgent action required" KPI shows 2, and their satisfaction is still 3. With the constant `false` nobody is flagged and the KPI shows 0.
+13. At widths from 390 px to 1400 px, every field of every customer (including the actions) is fully visible, with no horizontal page scroll and no clipped text, in both languages.
+14. The Airtable page "נדרשת פעולה דחופה" lists exactly the customers who satisfy the rule of section 7.11.
+15. There are no console errors in any of these scenarios.
 
 ## 11. Test Strategy
 
@@ -242,3 +260,7 @@ Each customer is a record with the following fields:
 | 9 | Product name | Customer Retention Dashboard |
 | 10 | Risk threshold | Fixed at 2 or below |
 | 11 | Airtable | Optional direct connection from the browser. The token is entered by the manager and kept only in that browser, never in the repository (section 7.10) |
+| 12 | Action-required rule | Entry or steel door, satisfaction exactly 3, only while competitor sales are active. Display only, satisfaction is never changed (section 7.11) |
+| 13 | Competitor check | A manual Apify Google Search scrape, recorded as a constant in `index.html`; not a live feature of the page |
+| 14 | Airtable tab | An interface page with a fixed filter, because a grid view cannot be created through the available tools (section 7.11) |
+| 15 | Table layout | Full table up to 1100 px, cards below it, so nothing is ever cut off (section 7.2) |
