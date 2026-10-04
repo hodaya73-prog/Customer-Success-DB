@@ -25,11 +25,12 @@ A door store runs a customer retention department. The department manager needs 
 - Free-text search, filters and column sorting.
 - Hebrew/English language switch, including text direction (RTL/LTR).
 - Mock data loaded on first launch.
+- Optional connection to an Airtable base, as an alternative to browser storage (section 7.10).
 
 **Out of scope (V1):**
 
 - Login, roles and multiple users.
-- Server, database and cross-device sync.
+- A custom server or database of our own. Cross-device sync is available only through the optional Airtable connection.
 - Charts, historical reports, and tracking satisfaction changes over time.
 - Ticket management (open tickets are shown as a number only, without detail).
 
@@ -38,7 +39,7 @@ A door store runs a customer retention department. The department manager needs 
 | Topic | Decision |
 |---|---|
 | Technology | HTML + CSS + JavaScript (vanilla) in a single file, no build step, no installation |
-| Data persistence | Browser `localStorage`. Mock data is loaded on first launch. A "Reset" button restores the mock data. CSV export serves as the backup |
+| Data persistence | Browser `localStorage` by default. Mock data is loaded on first launch. A "Reset" button restores the mock data. CSV export serves as the backup. Optionally the dashboard connects directly to an Airtable base and stores the customers there (section 7.10) |
 | Customer fields | The recommended set of 10 fields (section 5) |
 | Filtering | "Filtering" and "screening" are treated as the same thing. The filters are chosen at the team's discretion (section 7.3) |
 | Font | System fonts only, nothing loaded from the internet |
@@ -163,6 +164,19 @@ Each customer is a record with the following fields:
 - Date and number formats follow the selected language.
 - The selected language is saved in `localStorage` (default: Hebrew).
 
+### 7.10 Airtable Connection (optional)
+
+- A "Connect to Airtable" button in the header opens a dialog with three fields: Base ID, table name (default `Customers`) and a personal access token.
+- **The token is never part of the code or the repository.** The page is public, so the manager types the token once; it is stored in that browser's `localStorage` and sent only to `https://api.airtable.com`. A Content-Security-Policy in the page blocks every other network destination.
+- The token needs `data.records:read` and `data.records:write` on the one base only.
+- On connect the dashboard loads all records (paginated) and shows a "Connected to Airtable" indicator. If loading fails, the reason is shown with a Retry button, and nothing is saved.
+- Field mapping uses the same names as the CSV columns (section 5). Airtable stores `lastProduct` as a single select with the keys from section 5 and `satisfaction` as a 1-5 rating.
+- While connected, add, edit, delete and import write to Airtable first and update the screen only after Airtable confirms. A failed write shows an error message and leaves the screen unchanged. Writes are sent in batches of 10 records, and import keeps the merge-by-ID rules of section 7.7.
+- Airtable data is never copied into `localStorage`. "Reset data" is hidden while connected, and a "Refresh from Airtable" button reloads the records, for example after someone edits Airtable directly.
+- Records created by hand in Airtable without a customer ID get the next free ID automatically (written back to Airtable) so they can be edited. A record without a rating is shown with a dash, is not treated as at risk, and is excluded from the average.
+- "Disconnect" removes the saved token and returns to the local sample data.
+- Limits: anyone who can open the dashboard in the same browser profile can use the saved token, and there is still no login. Rotate the token in Airtable if it is ever exposed.
+
 ## 8. Design and UX Requirements
 
 - **Layout:** header (the name "Customer Retention Dashboard" in both languages + language toggle) → KPI row → toolbar (search, filters, import, export, add) → table.
@@ -176,7 +190,7 @@ Each customer is a record with the following fields:
 ## 9. Non-Functional Requirements
 
 - **Performance:** instant response with up to a few thousand customers.
-- **Privacy:** all data stays in the browser. Nothing is sent to a server, there are no external libraries, and no fonts or files are loaded from the internet.
+- **Privacy:** by default all data stays in the browser. Nothing is sent to a server, there are no external libraries, and no fonts or files are loaded from the internet. When connected to Airtable, customer data and the token go only to `api.airtable.com`.
 - **Compatibility:** current versions of Chrome, Edge, Firefox and Safari.
 - **Security:** content coming from a CSV is rendered as text and never executed (HTML escaping), to prevent code injection. On export, cells starting with `=`, `+`, `-` or `@` are neutralized (CSV injection).
 - **Data retention:** clearing browser data deletes the data. Export therefore serves as the backup, and a reminder is shown in the interface.
@@ -193,7 +207,8 @@ Each customer is a record with the following fields:
 8. Exporting and then importing the same file restores exactly the same data. Hebrew displays correctly in Excel.
 9. Import merges by ID, shows a warning about existing records and duplicates before applying, and rejects faulty rows with an accurate summary.
 10. Switching language changes all text and the direction (RTL/LTR) without a refresh and without losing filters or data.
-11. There are no console errors in any of these scenarios.
+11. Connected to Airtable, the dashboard loads the table, writes add/edit/delete/import to Airtable, shows an error without changing the screen when a write fails, and never stores the token in the repository or customer data in `localStorage`.
+12. There are no console errors in any of these scenarios.
 
 ## 11. Test Strategy
 
@@ -226,3 +241,4 @@ Each customer is a record with the following fields:
 | 8 | Font | System font |
 | 9 | Product name | Customer Retention Dashboard |
 | 10 | Risk threshold | Fixed at 2 or below |
+| 11 | Airtable | Optional direct connection from the browser. The token is entered by the manager and kept only in that browser, never in the repository (section 7.10) |

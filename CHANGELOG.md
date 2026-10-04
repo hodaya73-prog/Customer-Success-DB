@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here, newest first. See [PRACTICE.md](PRACTICE.md) for how this file is maintained.
 
+## 2026-10-04
+
+### Added
+- Optional Airtable connection in `index.html`. A "Connect to Airtable" dialog takes the Base ID, table name and a personal access token. The token is stored only in the user's browser and is never committed. While connected, the dashboard loads the table (paginated), writes add/edit/delete/import to Airtable in batches of 10, shows an error without changing the screen when a write fails, and offers Refresh and Disconnect. Airtable data is not cached in `localStorage`.
+- A Content-Security-Policy meta tag that limits network requests to `api.airtable.com`.
+- Handling for records created by hand in Airtable: missing customer IDs are assigned and written back, and a missing rating shows a dash and is excluded from "at risk" and from the average.
+- `SPEC.md` section 7.10, acceptance criterion 11 and decision 11 describing the Airtable connection; `README.md` setup steps.
+
 ## 2026-10-01 (later)
 
 ### Added

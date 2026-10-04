@@ -24,9 +24,19 @@ On first launch the dashboard loads 40 sample customers. Everything you change a
 - **CSV import and export:** export always includes all customers. Import merges by customer ID and shows a summary, including duplicates and rejected rows, before applying.
 - **Hebrew and English:** switch with the toggle in the header. The layout flips between RTL and LTR.
 
+## Connect to Airtable (optional)
+
+By default the dashboard keeps its data in your browser. To use an Airtable base instead:
+
+1. In Airtable, create a base with a `Customers` table whose fields match the columns of [`mock-customers.csv`](mock-customers.csv): `name` (primary, text), `id` (text), `phone` (text), `email` (email), `city` (text), `lastPurchaseDate` (date), `totalPurchases` (number or currency), `lastProduct` (single select: `entry`, `interior`, `safe_room`, `sliding`, `security`, `accessories`), `satisfaction` (rating, 5 stars or a number) and `openTickets` (number).
+2. Create a personal access token at airtable.com/create/tokens with `data.records:read` and `data.records:write`, limited to that one base.
+3. In the dashboard, click **Connect to Airtable**, enter the Base ID (`app...`, visible in the base URL), the table name and the token, then click **Connect**.
+
+The token is stored only in your browser and is sent only to `api.airtable.com`. It is never part of this repository, and it must not be added to the code, because the page is public. To stop using Airtable, click **Airtable settings**, then **Disconnect**.
+
 ## Data and backup
 
-Data lives only in your browser. Clearing browser data deletes it, so use **Export CSV** regularly as a backup. **Reset data** restores the sample customers.
+Without Airtable, data lives only in your browser. Clearing browser data deletes it, so use **Export CSV** regularly as a backup. **Reset data** restores the sample customers. With Airtable connected, the customers are stored in Airtable.
 
 [`mock-customers.csv`](mock-customers.csv) is the sample data, in the same format the import accepts. All people in it are fictitious.
 

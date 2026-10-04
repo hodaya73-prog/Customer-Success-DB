@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The Airtable token never leaves this browser except to api.airtable.com: other network requests are blocked. -->
+<meta http-equiv="Content-Security-Policy" content="connect-src https://api.airtable.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Customer Retention Dashboard</title>
 <style>
   :root {
@@ -154,6 +156,13 @@
   .toast { background: #111827; color: #fff; padding: 10px 18px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.25); font-weight: 600; pointer-events: auto; max-width: 560px; }
   .toast.error { background: var(--red-text); }
 
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: #eef0f4; color: var(--muted); white-space: nowrap; }
+  .chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #9aa3b2; }
+  .chip.on { background: #e3f8ee; color: #0b6b47; }
+  .chip.on::before { background: #16a34a; }
+  .load-error { color: var(--red-text); font-weight: 600; margin-bottom: 8px; }
+  .btn[disabled] { opacity: .6; cursor: progress; }
+
   @media (max-width: 900px) {
     .kpis { grid-template-columns: repeat(2, 1fr); }
   }
@@ -173,6 +182,8 @@
       <p data-i18n="subtitle"></p>
     </div>
     <div class="header-actions">
+      <span class="chip" id="modeChip"></span>
+      <button type="button" class="btn small" id="btnConnect"></button>
       <button type="button" class="btn ghost small" id="btnReset" data-i18n="reset"></button>
       <div class="lang" role="group" aria-label="Language / שפה">
         <button type="button" id="langHe" data-lang="he" lang="he">עברית</button>
@@ -207,6 +218,7 @@
   <section class="table-card">
     <div class="table-head">
       <div class="count" id="count" aria-live="polite"></div>
+      <button type="button" class="btn small" id="btnRefresh" data-i18n="refresh" hidden></button>
     </div>
     <div class="table-wrap">
       <table>
@@ -280,7 +292,7 @@
     </div>
     <div class="dlg-foot">
       <button type="button" class="btn" id="custCancel" data-i18n="cancel"></button>
-      <button type="submit" class="btn primary" data-i18n="save"></button>
+      <button type="submit" class="btn primary" id="custSubmit" data-i18n="save"></button>
     </div>
   </form>
 </dialog>
@@ -303,6 +315,37 @@
     <button type="button" class="btn" id="impCancel"></button>
     <button type="button" class="btn primary" id="impOk" data-i18n="impConfirm"></button>
   </div>
+</dialog>
+
+<!-- Airtable connection dialog -->
+<dialog id="dlgAirtable" aria-labelledby="atTitle">
+  <form id="atForm" novalidate>
+    <div class="dlg-head"><h2 id="atTitle" data-i18n="atTitle"></h2></div>
+    <div class="dlg-body">
+      <p class="hint" data-i18n="atHelp"></p>
+      <div class="form-grid">
+        <div class="field full">
+          <label for="at_base" data-i18n="atBase"></label>
+          <input type="text" id="at_base" class="ltr" autocomplete="off" spellcheck="false" placeholder="appXXXXXXXXXXXXXX">
+        </div>
+        <div class="field full">
+          <label for="at_table" data-i18n="atTable"></label>
+          <input type="text" id="at_table" class="ltr" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="field full">
+          <label for="at_token" data-i18n="atToken"></label>
+          <input type="password" id="at_token" class="ltr" autocomplete="off" spellcheck="false">
+          <div class="hint" id="at_tokenHint"></div>
+        </div>
+      </div>
+      <div class="err" id="at_err" role="alert"></div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn" id="atCancel" data-i18n="cancel"></button>
+      <button type="button" class="btn danger" id="atDisconnect" data-i18n="atDisconnect" hidden></button>
+      <button type="submit" class="btn primary" id="atSubmit" data-i18n="atConnect"></button>
+    </div>
+  </form>
 </dialog>
 
 <script type="text/plain" id="mock-csv">
@@ -361,6 +404,8 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
   var ACTIVE_DAYS = 365;     // purchased within the last 365 days = active
   var STORE_KEY = 'crd.customers.v1';
   var LANG_KEY = 'crd.lang';
+  var AT_KEY = 'crd.airtable';
+  var AT_BATCH = 10;           // Airtable accepts up to 10 records per write request
 
   /* ---------- Translations ---------- */
   var I18N = {
@@ -404,7 +449,22 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       tAdded: 'הלקוח נוסף', tUpdated: 'הלקוח עודכן', tDeleted: 'הלקוח נמחק',
       tImported: '{a} נוספו, {u} עודכנו, {r} נדחו', tExported: 'יוצאו {n} לקוחות', tReset: 'הנתונים אופסו לנתוני הדוגמה',
       footer: 'הנתונים נשמרים בדפדפן זה בלבד. מומלץ לייצא CSV באופן קבוע כגיבוי.',
-      storageOff: 'שמירה בדפדפן אינה זמינה: השינויים יאבדו ברענון הדף. ייצאו CSV כדי לשמור אותם.'
+      storageOff: 'שמירה בדפדפן אינה זמינה: השינויים יאבדו ברענון הדף. ייצאו CSV כדי לשמור אותם.',
+      refresh: 'רענון מ-Airtable', retry: 'ניסיון חוזר',
+      modeLocal: 'נתוני דוגמה מקומיים', modeAt: 'מחובר ל-Airtable', connectBtn: 'חיבור ל-Airtable', settingsBtn: 'הגדרות Airtable',
+      atTitle: 'חיבור ל-Airtable',
+      atHelp: 'הטוקן נשמר בדפדפן הזה בלבד ונשלח רק ל-Airtable. נדרשות לו הרשאות data.records:read ו-data.records:write לבסיס הזה.',
+      atBase: 'מזהה בסיס (Base ID)', atTable: 'שם הטבלה', atToken: 'טוקן גישה אישי (Personal Access Token)',
+      atTokenSaved: 'שמור בדפדפן. השאירו ריק כדי להמשיך להשתמש בו.',
+      atConnect: 'חיבור', atConnecting: 'מתחבר…', atDisconnect: 'ניתוק',
+      atErrBase: 'מזהה בסיס חייב להתחיל ב-app (למשל appXXXXXXXXXXXXXX)', atErrTable: 'יש להזין שם טבלה', atErrToken: 'יש להזין טוקן',
+      atErrAuth: 'הטוקן לא תקין או שאין לו הרשאה לבסיס הזה', atErrNotFound: 'הבסיס או הטבלה לא נמצאו',
+      atErrNetwork: 'אין חיבור ל-Airtable. בדקו את האינטרנט ונסו שוב', atErrGeneric: 'שגיאה לא ידועה מ-Airtable',
+      loading: 'טוען נתונים מ-Airtable…', loadFailed: 'לא ניתן לטעון מ-Airtable: {msg}',
+      tConnected: 'מחובר ל-Airtable ({n} לקוחות)', tDisconnected: 'נותק מ-Airtable. מוצגים נתוני הדוגמה המקומיים',
+      tRefreshed: 'הנתונים רועננו מ-Airtable', tIdsFixed: 'הוקצו מזהים ל-{n} רשומות ב-Airtable',
+      tSaveFail: 'השמירה ב-Airtable נכשלה: {msg}',
+      footerAt: 'הנתונים נשמרים ב-Airtable. הטוקן נשמר בדפדפן הזה בלבד.'
     },
     en: {
       subtitle: 'Track customer satisfaction and spot churn risk',
@@ -446,7 +506,22 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       tAdded: 'Customer added', tUpdated: 'Customer updated', tDeleted: 'Customer deleted',
       tImported: '{a} added, {u} updated, {r} rejected', tExported: 'Exported {n} customers', tReset: 'Data reset to sample data',
       footer: 'Data is stored in this browser only. Export a CSV regularly as a backup.',
-      storageOff: 'Browser storage is unavailable: changes will be lost when the page is refreshed. Export a CSV to keep them.'
+      storageOff: 'Browser storage is unavailable: changes will be lost when the page is refreshed. Export a CSV to keep them.',
+      refresh: 'Refresh from Airtable', retry: 'Retry',
+      modeLocal: 'Local sample data', modeAt: 'Connected to Airtable', connectBtn: 'Connect to Airtable', settingsBtn: 'Airtable settings',
+      atTitle: 'Connect to Airtable',
+      atHelp: 'The token is stored in this browser only and is sent only to Airtable. It needs data.records:read and data.records:write access to this base.',
+      atBase: 'Base ID', atTable: 'Table name', atToken: 'Personal access token',
+      atTokenSaved: 'Saved in this browser. Leave empty to keep using it.',
+      atConnect: 'Connect', atConnecting: 'Connecting…', atDisconnect: 'Disconnect',
+      atErrBase: 'Base ID must start with "app" (for example appXXXXXXXXXXXXXX)', atErrTable: 'Enter a table name', atErrToken: 'Enter a token',
+      atErrAuth: 'The token is invalid or has no access to this base', atErrNotFound: 'Base or table not found',
+      atErrNetwork: 'Cannot reach Airtable. Check your connection and try again', atErrGeneric: 'Unknown error from Airtable',
+      loading: 'Loading data from Airtable…', loadFailed: 'Could not load from Airtable: {msg}',
+      tConnected: 'Connected to Airtable ({n} customers)', tDisconnected: 'Disconnected from Airtable. Showing local sample data',
+      tRefreshed: 'Data refreshed from Airtable', tIdsFixed: 'Assigned IDs to {n} records in Airtable',
+      tSaveFail: 'Saving to Airtable failed: {msg}',
+      footerAt: 'Data is stored in Airtable. The token is stored in this browser only.'
     }
   };
 
@@ -458,6 +533,8 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
   var sort = { key: 'satisfaction', dir: 'asc' };   // dir: 'asc' | 'desc' | null (null = original order)
   var editingId = null;
   var pendingImport = null;
+  var at = null;               // Airtable connection { token, baseId, table } or null (local sample data)
+  var loading = false, loadError = '';
 
   /* ---------- Helpers ---------- */
   function $(id) { return document.getElementById(id); }
@@ -495,10 +572,10 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
   }
   function daysSince(iso) { return Math.round((todayUTC() - parseISO(iso)) / 86400000); }
   function isActive(c) { return daysSince(c.lastPurchaseDate) <= ACTIVE_DAYS; }
-  function isAtRisk(c) { return c.satisfaction <= RISK_MAX; }
+  function isAtRisk(c) { return c.satisfaction != null && c.satisfaction <= RISK_MAX; }
 
   /* ---------- Products ---------- */
-  function productLabel(key) { return t('prod.' + key); }
+  function productLabel(key) { return key ? t('prod.' + key) : '—'; }
   function normalizeProduct(raw) {
     var v = String(raw == null ? '' : raw).trim().toLowerCase();
     if (!v) return null;
@@ -632,6 +709,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     return mockCustomers();
   }
   function persist() {
+    if (at) return;    // data lives in Airtable; keep it out of browser storage
     try { localStorage.setItem(STORE_KEY, JSON.stringify(customers)); storageOk = true; }
     catch (e) { storageOk = false; renderFooter(); }
   }
@@ -676,7 +754,8 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     var total = customers.length;
     var active = customers.filter(isActive).length;
     var risk = customers.filter(isAtRisk).length;
-    var avg = total ? customers.reduce(function (s, c) { return s + c.satisfaction; }, 0) / total : null;
+    var rated = customers.filter(function (c) { return c.satisfaction != null; });
+    var avg = rated.length ? rated.reduce(function (s, c) { return s + c.satisfaction; }, 0) / rated.length : null;
     var tix = customers.reduce(function (s, c) { return s + c.openTickets; }, 0);
     var avgTxt = avg == null ? '—' : new Intl.NumberFormat(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(avg);
     var cards = [
@@ -708,7 +787,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     return true;
   }
   function compare(a, b, key) {
-    if (key === 'satisfaction' || key === 'openTickets' || key === 'totalPurchases') return a[key] - b[key];
+    if (key === 'satisfaction' || key === 'openTickets' || key === 'totalPurchases') return (a[key] == null ? 99 : a[key]) - (b[key] == null ? 99 : b[key]);
     if (key === 'lastPurchaseDate') return a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
     if (key === 'lastProduct') return productLabel(a[key]).localeCompare(productLabel(b[key]), locale());
     return String(a[key]).localeCompare(String(b[key]), locale(), { numeric: true, sensitivity: 'base' });
@@ -739,6 +818,13 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
   function renderTable() {
     var rows = visibleRows();
     $('count').textContent = t('count', { n: fmtInt(rows.length), m: fmtInt(customers.length) });
+    if (loading || loadError) {
+      $('tbody').innerHTML = '<tr><td colspan="' + (FIELDS.length + 1) + '" class="empty">' +
+        (loading ? '<strong>' + esc(t('loading')) + '</strong>'
+                 : '<div class="load-error">' + esc(t('loadFailed', { msg: loadError })) + '</div><button type="button" class="btn" data-action="retry">' + esc(t('retry')) + '</button>') +
+        '</td></tr>';
+      return;
+    }
     if (!rows.length) {
       var none = customers.length === 0;
       $('tbody').innerHTML = '<tr><td colspan="' + (FIELDS.length + 1) + '" class="empty"><strong>' + esc(none ? t('emptyAll') : t('emptyFilter')) + '</strong>' +
@@ -749,7 +835,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     $('tbody').innerHTML = rows.map(function (c) {
       var risk = isAtRisk(c), active = isActive(c);
       var dots = '';
-      for (var i = 1; i <= 5; i++) dots += '<i class="' + (i <= c.satisfaction ? 'on' : '') + '"></i>';
+      for (var i = 1; i <= 5; i++) dots += '<i class="' + (c.satisfaction != null && i <= c.satisfaction ? 'on' : '') + '"></i>';
       return '<tr class="' + (risk ? 'risk' : '') + '" data-id="' + esc(c.id) + '">' +
         '<td class="mono">' + esc(c.id) + '</td>' +
         '<td class="name">' + esc(c.name) + '</td>' +
@@ -759,7 +845,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
         '<td class="nowrap">' + esc(fmtDate(c.lastPurchaseDate)) + (active ? '' : '<span class="tag">' + esc(t('inactive')) + '</span>') + '</td>' +
         '<td class="num nowrap">' + esc(fmtMoney(c.totalPurchases)) + '</td>' +
         '<td class="nowrap">' + esc(productLabel(c.lastProduct)) + '</td>' +
-        '<td class="nowrap"><span class="sat"><b>' + c.satisfaction + '</b><span class="dots" aria-hidden="true">' + dots + '</span></span>' +
+        '<td class="nowrap"><span class="sat"><b>' + (c.satisfaction == null ? '—' : c.satisfaction) + '</b><span class="dots" aria-hidden="true">' + dots + '</span></span>' +
           (risk ? '<span class="badge">' + esc(t('atRisk')) + '</span>' : '') + '</td>' +
         '<td class="num' + (c.openTickets > 0 ? ' tix-pos' : '') + '">' + esc(fmtInt(c.openTickets)) + '</td>' +
         '<td><div class="actions">' +
@@ -769,9 +855,17 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     }).join('');
   }
   function renderFooter() {
-    $('footer').innerHTML = esc(t('footer')) + (storageOk ? '' : '<span class="warn-text">' + esc(t('storageOff')) + '</span>');
+    $('footer').innerHTML = esc(at ? t('footerAt') : t('footer')) + (storageOk || at ? '' : '<span class="warn-text">' + esc(t('storageOff')) + '</span>');
   }
-  function renderAll() { renderKPIs(); renderHead(); renderTable(); renderFooter(); }
+  function renderMode() {
+    var chip = $('modeChip');
+    chip.textContent = at ? t('modeAt') : t('modeLocal');
+    chip.classList.toggle('on', !!at);
+    $('btnConnect').textContent = at ? t('settingsBtn') : t('connectBtn');
+    $('btnRefresh').hidden = !at;
+    $('btnReset').hidden = !!at;
+  }
+  function renderAll() { renderMode(); renderKPIs(); renderHead(); renderTable(); renderFooter(); }
 
   /* ---------- Toasts ---------- */
   function toast(msg, isError) {
@@ -780,6 +874,160 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     el.textContent = msg;
     $('toasts').appendChild(el);
     setTimeout(function () { el.remove(); }, 4000);
+  }
+
+  /* ---------- Airtable ---------- */
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function errMsg(err) {
+    if (err && err.network) return t('atErrNetwork');
+    if (err && (err.status === 401 || err.status === 403)) return t('atErrAuth');
+    if (err && err.status === 404) return t('atErrNotFound');
+    return (err && err.message) || t('atErrGeneric');
+  }
+  function atRequest(cfg, method, path, body) {
+    var url = 'https://api.airtable.com/v0/' + cfg.baseId + '/' + encodeURIComponent(cfg.table) + (path || '');
+    return fetch(url, {
+      method: method,
+      headers: { 'Authorization': 'Bearer ' + cfg.token, 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) {
+          var m = j && j.error && (typeof j.error === 'string' ? j.error : (j.error.message || j.error.type));
+          var e = new Error(m || ('HTTP ' + r.status)); e.status = r.status; throw e;
+        }
+        return j;
+      });
+    }, function () { var e = new Error('network'); e.network = true; throw e; });
+  }
+  function fromRecord(rec) {
+    var f = rec.fields || {};
+    function str(v) { return v == null ? '' : String(v).trim(); }
+    var sat = f.satisfaction, tix = parseInt(f.openTickets, 10), tp = Number(f.totalPurchases);
+    return {
+      id: str(f.id), name: str(f.name), phone: str(f.phone), email: str(f.email), city: str(f.city),
+      lastPurchaseDate: parseISO(f.lastPurchaseDate) != null ? String(f.lastPurchaseDate) : '',
+      totalPurchases: isFinite(tp) ? tp : 0,
+      lastProduct: normalizeProduct(f.lastProduct) || '',
+      satisfaction: (Number.isInteger(sat) && sat >= 1 && sat <= 5) ? sat : null,
+      openTickets: tix > 0 ? tix : 0,
+      _rid: rec.id
+    };
+  }
+  function toFields(c) {
+    return {
+      name: c.name, id: c.id, phone: c.phone, email: c.email || null, city: c.city || null,
+      lastPurchaseDate: c.lastPurchaseDate || null, totalPurchases: c.totalPurchases,
+      lastProduct: c.lastProduct || null, satisfaction: c.satisfaction, openTickets: c.openTickets
+    };
+  }
+  function atLoadAll(cfg) {
+    var out = [];
+    function page(offset) {
+      return atRequest(cfg, 'GET', '?pageSize=100' + (offset ? '&offset=' + encodeURIComponent(offset) : '')).then(function (j) {
+        (j.records || []).forEach(function (r) { out.push(fromRecord(r)); });
+        return j.offset ? page(j.offset) : out;
+      });
+    }
+    return page(null);
+  }
+  function batches(list) {
+    var out = [];
+    for (var i = 0; i < list.length; i += AT_BATCH) out.push(list.slice(i, i + AT_BATCH));
+    return out;
+  }
+  function runBatches(list, fn) {          // sequential, with a pause to stay under Airtable's 5 requests/second limit
+    var results = [];
+    return batches(list).reduce(function (p, b, i) {
+      return p.then(function () { return (i ? sleep(250) : null); }).then(function () { return fn(b); }).then(function (r) { results = results.concat(r); });
+    }, Promise.resolve()).then(function () { return results; });
+  }
+  function atCreate(list) {
+    return runBatches(list, function (b) {
+      return atRequest(at, 'POST', '', { records: b.map(function (c) { return { fields: toFields(c) }; }) }).then(function (j) { return j.records; });
+    });
+  }
+  function atPatch(records) {              // records: [{ id: recordId, fields: {...} }]
+    return runBatches(records, function (b) { return atRequest(at, 'PATCH', '', { records: b }).then(function (j) { return j.records; }); });
+  }
+  function atUpdate(list) {
+    return atPatch(list.map(function (c) { return { id: c._rid, fields: toFields(c) }; }));
+  }
+  function atDelete(rid) { return atRequest(at, 'DELETE', '/' + encodeURIComponent(rid)); }
+
+  function withBusy(btn, promise) {
+    btn.disabled = true; btn.setAttribute('aria-busy', 'true');
+    function done() { btn.disabled = false; btn.removeAttribute('aria-busy'); }
+    promise.then(done, done);
+    return promise;
+  }
+  // Records created by hand in Airtable have no customer ID yet: give them one so they can be edited and merged.
+  function fixMissingIds() {
+    var missing = customers.filter(function (c) { return !c.id; });
+    if (!missing.length) return Promise.resolve();
+    missing.forEach(function (c) { c.id = nextId(); });
+    return atPatch(missing.map(function (c) { return { id: c._rid, fields: { id: c.id } }; })).then(function () {
+      toast(t('tIdsFixed', { n: fmtInt(missing.length) }));
+    }, function (err) { toast(t('tSaveFail', { msg: errMsg(err) }), true); });
+  }
+  function atReload(announce) {
+    loading = true; loadError = ''; renderAll();
+    return atLoadAll(at).then(function (list) {
+      customers = list; loading = false; renderAll();
+      if (announce) toast(t('tRefreshed'));
+      return fixMissingIds().then(renderAll);
+    }, function (err) {
+      loading = false; loadError = errMsg(err); renderAll();
+    });
+  }
+  function readAt() {
+    try {
+      var c = JSON.parse(localStorage.getItem(AT_KEY));
+      if (c && c.token && c.baseId && c.table) return c;
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+
+  /* Connection dialog */
+  function openAirtableDialog() {
+    $('at_err').textContent = '';
+    $('at_base').value = at ? at.baseId : '';
+    $('at_table').value = at ? at.table : 'Customers';
+    $('at_token').value = '';
+    $('at_tokenHint').textContent = at ? t('atTokenSaved') : '';
+    $('atDisconnect').hidden = !at;
+    $('dlgAirtable').showModal();
+    $(at ? 'at_token' : 'at_base').focus();
+  }
+  function submitAirtable(e) {
+    e.preventDefault();
+    var base = $('at_base').value.trim(), table = $('at_table').value.trim(), token = $('at_token').value.trim() || (at ? at.token : '');
+    var err = !/^app[A-Za-z0-9]{14}$/.test(base) ? 'atErrBase' : !table ? 'atErrTable' : !token ? 'atErrToken' : '';
+    if (err) { $('at_err').textContent = t(err); return; }
+    var cfg = { token: token, baseId: base, table: table };
+    $('at_err').textContent = '';
+    var btn = $('atSubmit'), label = btn.textContent;
+    btn.textContent = t('atConnecting');
+    withBusy(btn, atLoadAll(cfg)).then(function (list) {
+      btn.textContent = label;
+      try { localStorage.setItem(AT_KEY, JSON.stringify(cfg)); } catch (x) { /* connection still works for this session */ }
+      at = cfg; customers = list; loading = false; loadError = '';
+      $('dlgAirtable').close();
+      renderAll();
+      toast(t('tConnected', { n: fmtInt(list.length) }));
+      fixMissingIds().then(renderAll);
+    }, function (error) {
+      btn.textContent = label;
+      $('at_err').textContent = errMsg(error);
+    });
+  }
+  function disconnectAirtable() {
+    try { localStorage.removeItem(AT_KEY); } catch (e) { /* ignore */ }
+    at = null; loading = false; loadError = '';
+    customers = loadCustomers();
+    $('dlgAirtable').close();
+    renderAll();
+    toast(t('tDisconnected'));
   }
 
   /* ---------- Dialogs ---------- */
@@ -851,19 +1099,26 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       return;
     }
     var v = res.value;
-    if (editingId) {
-      var idx = customers.findIndex(function (c) { return c.id === editingId; });
-      v.id = editingId;
-      if (idx !== -1) customers[idx] = v;
-      toast(t('tUpdated'));
-    } else {
-      v.id = nextId();
-      customers.push(v);
-      toast(t('tAdded'));
+    var existing = editingId ? customers.find(function (c) { return c.id === editingId; }) : null;
+    v.id = editingId || nextId();
+    function commit() {
+      if (editingId) {
+        var idx = customers.indexOf(existing);
+        if (idx !== -1) customers[idx] = v;
+        toast(t('tUpdated'));
+      } else {
+        customers.push(v);
+        toast(t('tAdded'));
+      }
+      persist();
+      $('dlgCustomer').close();
+      renderAll();
     }
-    persist();
-    $('dlgCustomer').close();
-    renderAll();
+    if (!at) { commit(); return; }
+    var job = existing
+      ? (v._rid = existing._rid, atUpdate([v]))
+      : atCreate([v]).then(function (recs) { v._rid = recs[0].id; });
+    withBusy($('custSubmit'), job).then(commit, function (err) { toast(t('tSaveFail', { msg: errMsg(err) }), true); });
   }
 
   /* Delete */
@@ -872,8 +1127,9 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     if (!c) return;
     confirmDialog({ title: t('delTitle'), body: t('delBody', { name: c.name }), okLabel: t('delOk') }).then(function (yes) {
       if (!yes) return;
-      customers = customers.filter(function (x) { return x.id !== id; });
-      persist(); renderAll(); toast(t('tDeleted'));
+      function done() { customers = customers.filter(function (x) { return x !== c; }); persist(); renderAll(); toast(t('tDeleted')); }
+      if (!at) { done(); return; }
+      atDelete(c._rid).then(done, function (err) { toast(t('tSaveFail', { msg: errMsg(err) }), true); });
     });
   }
 
@@ -966,19 +1222,31 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
   function applyImport() {
     var res = pendingImport;
     if (!res) return;
-    var byId = {};
-    res.updates.forEach(function (c) { byId[c.id] = c; });
-    customers = customers.map(function (c) { return byId[c.id] ? byId[c.id] : c; });
+    var existingById = {};
+    customers.forEach(function (c) { existingById[c.id] = c; });
+    res.updates.forEach(function (c) { if (existingById[c.id]) c._rid = existingById[c.id]._rid; });
     var taken = res.adds.map(function (c) { return c.id; }).filter(Boolean);
-    res.adds.forEach(function (c) {
-      if (!c.id) { c.id = nextId(taken); taken.push(c.id); }
-      customers.push(c);
+    res.adds.forEach(function (c) { if (!c.id) { c.id = nextId(taken); taken.push(c.id); } });
+    function commit() {
+      var byId = {};
+      res.updates.forEach(function (c) { byId[c.id] = c; });
+      customers = customers.map(function (c) { return byId[c.id] ? byId[c.id] : c; });
+      res.adds.forEach(function (c) { customers.push(c); });
+      persist();
+      $('dlgImport').close();
+      renderAll();
+      toast(t('tImported', { a: fmtInt(res.adds.length), u: fmtInt(res.updates.length), r: fmtInt(res.rejected.length) }));
+      pendingImport = null;
+    }
+    if (!at) { commit(); return; }
+    var job = atUpdate(res.updates).then(function () { return atCreate(res.adds); }).then(function (recs) {
+      res.adds.forEach(function (c, i) { c._rid = recs[i].id; });
     });
-    persist();
-    $('dlgImport').close();
-    renderAll();
-    toast(t('tImported', { a: fmtInt(res.adds.length), u: fmtInt(res.updates.length), r: fmtInt(res.rejected.length) }));
-    pendingImport = null;
+    withBusy($('impOk'), job).then(commit, function (err) {
+      toast(t('tSaveFail', { msg: errMsg(err) }), true);
+      pendingImport = null; $('dlgImport').close();
+      atReload(false);               // some batches may have been written: resync with Airtable
+    });
   }
 
   /* ---------- Events ---------- */
@@ -997,12 +1265,18 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
   function init() {
     try { var l = localStorage.getItem(LANG_KEY); if (l === 'he' || l === 'en') lang = l; } catch (e) { storageOk = false; }
     try { localStorage.setItem('crd.probe', '1'); localStorage.removeItem('crd.probe'); } catch (e) { storageOk = false; }
-    customers = loadCustomers();
-    if (storageOk) persist();
+    at = readAt();
+    customers = at ? [] : loadCustomers();
+    if (!at && storageOk) persist();
 
     $('langHe').addEventListener('click', function () { setLang('he'); });
     $('langEn').addEventListener('click', function () { setLang('en'); });
     $('btnReset').addEventListener('click', resetData);
+    $('btnConnect').addEventListener('click', openAirtableDialog);
+    $('btnRefresh').addEventListener('click', function () { withBusy($('btnRefresh'), atReload(true)); });
+    $('atForm').addEventListener('submit', submitAirtable);
+    $('atCancel').addEventListener('click', function () { $('dlgAirtable').close(); });
+    $('atDisconnect').addEventListener('click', disconnectAirtable);
     $('btnAdd').addEventListener('click', function () { openCustomer(null); });
     $('btnExport').addEventListener('click', exportCSV);
     $('btnImport').addEventListener('click', function () { $('fileInput').click(); });
@@ -1033,6 +1307,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       if (!b) return;
       var action = b.getAttribute('data-action');
       if (action === 'clear') { clearFilters(); return; }
+      if (action === 'retry') { atReload(false); return; }
       var tr = b.closest('tr'); var id = tr && tr.getAttribute('data-id');
       var c = customers.find(function (x) { return x.id === id; });
       if (!c) return;
@@ -1045,9 +1320,10 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     $('impCancel').addEventListener('click', function () { pendingImport = null; $('dlgImport').close(); });
     $('impOk').addEventListener('click', applyImport);
     $('dlgImport').addEventListener('close', function () { pendingImport = null; });
-    ['dlgCustomer', 'dlgConfirm', 'dlgImport'].forEach(function (id) { backdropClose($(id)); });
+    ['dlgCustomer', 'dlgConfirm', 'dlgImport', 'dlgAirtable'].forEach(function (id) { backdropClose($(id)); });
 
     applyLang();
+    if (at) atReload(false);
   }
 
   init();
