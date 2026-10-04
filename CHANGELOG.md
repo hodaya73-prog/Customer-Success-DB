@@ -4,6 +4,9 @@ All notable changes to this project are documented here, newest first. See [PRAC
 
 ## 2026-10-04
 
+### Fixed
+- Airtable connection error message now also mentions a wrong table name. Airtable answers 403 for an unknown table, which looked like a bad token.
+
 ### Added
 - Optional Airtable connection in `index.html`. A "Connect to Airtable" dialog takes the Base ID, table name and a personal access token. The token is stored only in the user's browser and is never committed. While connected, the dashboard loads the table (paginated), writes add/edit/delete/import to Airtable in batches of 10, shows an error without changing the screen when a write fails, and offers Refresh and Disconnect. Airtable data is not cached in `localStorage`.
 - A Content-Security-Policy meta tag that limits network requests to `api.airtable.com`.
