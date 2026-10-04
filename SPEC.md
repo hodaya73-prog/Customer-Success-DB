@@ -192,7 +192,7 @@ Each customer is a record with the following fields:
 - **Rule:** while `COMPETITOR_PROMO_ACTIVE` is `true`, a customer is action-required when `lastProduct` is `entry` or `security` and `satisfaction` is exactly 3. When the constant is `false`, no customer is flagged and the KPI shows 0.
 - **Display only:** the flag is computed in the page and never written to the data, so satisfaction stays 3, and nothing is written to Airtable or CSV.
 - **Display:** light-orange row, light-orange "Action required" badge (Hebrew: "נדרשת פעולה") under the rating, and the "Urgent action required" KPI card (section 7.1). Both language versions are translated.
-- **Airtable tab:** the Airtable base has an interface "Customer Retention" with a page "נדרשת פעולה דחופה", a grid of the `Customers` table with a fixed filter (`satisfaction` = 3 and `lastProduct` is `entry` or `security`). It is a snapshot of the same rule at the time of the scrape. The Airtable tools in use cannot create a grid view inside the table itself, so this page is the tab; the manager can create an equivalent grid view by hand with the same two filters. If the constant is switched off, the page should be hidden or deleted by hand.
+- **Airtable table:** the Airtable base has a table "נדרשת פעולה דחופה" (not an interface page, and no colors) holding a copy of the `Customers` rows that satisfy the rule: `name`, `id`, `phone`, `email`, `city`, `lastPurchaseDate`, `totalPurchases`, `lastProduct` (plain text, `entry` or `security`), `satisfaction` (number), `openTickets`, plus `apifyRunId` and `scanDate`, which point to the Apify run that confirmed the sales (see the evidence file above). It was filled by hand from the 2026-10-04 run with C-0010 and C-0037. It is a snapshot: it does not update by itself, because there is no schedule and no automation yet, and the `Customers` table is never changed by it. The dashboard does not read this table. If the constant is switched off, the table must be emptied by hand.
 
 ## 8. Design and UX Requirements
 
@@ -227,7 +227,7 @@ Each customer is a record with the following fields:
 11. Connected to Airtable, the dashboard loads the table, writes add/edit/delete/import to Airtable, shows an error without changing the screen when a write fails, and never stores the token in the repository or customer data in `localStorage`.
 12. With the mock data and `COMPETITOR_PROMO_ACTIVE` = `true`, exactly C-0010 and C-0037 have a light-orange row and the "Action required" badge, the "Urgent action required" KPI shows 2, and their satisfaction is still 3. With the constant `false` nobody is flagged and the KPI shows 0.
 13. At widths from 390 px to 1400 px, every field of every customer (including the actions) is fully visible, with no horizontal page scroll and no clipped text, in both languages.
-14. The Airtable page "נדרשת פעולה דחופה" lists exactly the customers who satisfy the rule of section 7.11.
+14. The Airtable table "נדרשת פעולה דחופה" contains exactly the customers who satisfy the rule of section 7.11 as of the last Apify check (2026-10-04: C-0010 and C-0037).
 15. There are no console errors in any of these scenarios.
 
 ## 11. Test Strategy
@@ -264,5 +264,5 @@ Each customer is a record with the following fields:
 | 11 | Airtable | Optional direct connection from the browser. The token is entered by the manager and kept only in that browser, never in the repository (section 7.10) |
 | 12 | Action-required rule | Entry or steel door, satisfaction exactly 3, only while competitor sales are active. Display only, satisfaction is never changed (section 7.11) |
 | 13 | Competitor check | A manual Apify Google Search scrape, recorded as a constant in `index.html`; not a live feature of the page |
-| 14 | Airtable tab | An interface page with a fixed filter, because a grid view cannot be created through the available tools (section 7.11) |
+| 14 | Airtable list | A separate table with a copy of the matching customers, filled from the Apify check; no interface page, no colors. Updating it automatically is not built yet (section 7.11) |
 | 15 | Table layout | Full table up to 1100 px, cards below it, so nothing is ever cut off (section 7.2) |
