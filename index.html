@@ -50,7 +50,7 @@
   .header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
   .title h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -.01em; }
   .title p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
-  .header-actions { display: flex; align-items: center; gap: 12px; }
+  .header-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; background: var(--card); padding: 3px; }
   .lang button { border: 0; background: transparent; padding: 5px 14px; border-radius: 999px; cursor: pointer; color: var(--muted); font-weight: 600; }
   .lang button[aria-pressed="true"] { background: var(--primary); color: #fff; }
@@ -73,12 +73,15 @@
   .btn.small { padding: 4px 10px; font-size: 13px; }
 
   /* KPI */
-  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 20px; }
   .kpi { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px; border-top: 4px solid var(--primary); }
   .kpi.warn { border-top-color: #f87171; background: var(--red-bg); }
   .kpi-label { font-size: 14px; color: var(--muted); font-weight: 600; }
   .kpi-value { font-size: 34px; font-weight: 700; line-height: 1.15; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
   .kpi.warn .kpi-value { color: var(--red-text); }
+  .kpi.urgent { border-top-color: var(--orange); background: var(--orange-bg); }
+  .kpi.urgent .kpi-value { color: var(--orange-text); }
+  .kpi-sub.urgent { color: var(--orange-text); font-weight: 600; }
   .kpi-sub { font-size: 13px; color: var(--muted); }
   .kpi-sub.risk { color: var(--red-text); font-weight: 600; }
 
@@ -101,12 +104,12 @@
   .table-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); gap: 12px; flex-wrap: wrap; }
   .count { font-weight: 600; }
   .table-wrap { overflow-x: auto; }
-  table { width: 100%; min-width: 1150px; border-collapse: separate; border-spacing: 0; }
-  th, td { padding: 10px 12px; text-align: start; border-bottom: 1px solid var(--line); vertical-align: middle; }
-  thead th { background: #f8fafc; font-size: 13px; color: var(--muted); white-space: nowrap; padding: 0; }
-  thead th .sort { width: 100%; border: 0; background: transparent; cursor: pointer; padding: 11px 12px; text-align: start; font-weight: 700; color: inherit; display: inline-flex; gap: 6px; align-items: center; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  th, td { padding: 9px 8px; overflow-wrap: anywhere; text-align: start; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  thead th { background: #f8fafc; font-size: 13px; color: var(--muted); padding: 0; vertical-align: bottom; }
+  thead th .sort { width: 100%; border: 0; background: transparent; cursor: pointer; padding: 10px 8px; text-align: start; font-weight: 700; color: inherit; display: inline-flex; gap: 4px; align-items: center; }
   thead th .sort:hover { color: var(--text); background: #eef2f7; }
-  thead th.plain { padding: 11px 12px; font-weight: 700; }
+  thead th.plain { padding: 10px 8px; font-weight: 700; }
   .arrow { font-size: 10px; color: var(--primary); min-width: 10px; }
   tbody tr:hover td { background: #f8fafc; }
   tbody tr td:first-child { border-inline-start: 4px solid transparent; }
@@ -119,10 +122,10 @@
   td.num, th.num { text-align: end; font-variant-numeric: tabular-nums; }
   th.num .sort { justify-content: flex-end; text-align: end; }
   .mono { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
-  .name { font-weight: 600; white-space: nowrap; }
+  .name { font-weight: 600; }
   .nowrap { white-space: nowrap; }
   .tag { display: inline-block; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: #eef0f4; color: var(--muted); }
-  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--red); color: #fff; margin-inline-start: 8px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--red); color: #fff; margin-top: 4px; }
   .badge.action { background: var(--orange-tag); color: var(--orange-text); }
   .sat { display: inline-flex; align-items: center; gap: 8px; }
   .sat b { min-width: 1ch; font-variant-numeric: tabular-nums; }
@@ -132,7 +135,8 @@
   tr.risk .dots i.on { background: var(--red); }
   tr.risk .sat b { color: var(--red-text); }
   .tix-pos { font-weight: 700; color: var(--amber); }
-  .actions { white-space: nowrap; display: flex; gap: 6px; }
+  .actions { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+  @media (max-width: 1100px) { .actions { flex-direction: row; } }
   .empty { text-align: center; padding: 40px 16px; color: var(--muted); }
   .empty strong { display: block; color: var(--text); font-size: 16px; margin-bottom: 4px; }
   .empty .btn { margin-top: 12px; }
@@ -172,9 +176,33 @@
   .load-error { color: var(--red-text); font-weight: 600; margin-bottom: 8px; }
   .btn[disabled] { opacity: .6; cursor: progress; }
 
-  @media (max-width: 900px) {
-    .kpis { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 1100px) {
+    .kpis { grid-template-columns: repeat(6, 1fr); }
+    .kpi { grid-column: span 2; }
+    .kpi:nth-child(n+4) { grid-column: span 3; }
   }
+  @media (max-width: 560px) {
+    .kpis { grid-template-columns: 1fr; }
+    .kpi, .kpi:nth-child(n+4) { grid-column: auto; }
+  }
+  /* Narrow screens: each customer becomes a card, so no field is ever cut off */
+  .sort-narrow { display: none; }
+  @media (max-width: 1100px) {
+    .sort-narrow { display: grid; }
+    .table-wrap { overflow: visible; }
+    table, tbody { display: block; width: 100%; }
+    thead { display: none; }
+    tbody tr { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); padding: 6px 4px; border-inline-start: 4px solid transparent; }
+    tbody tr.risk { border-inline-start-color: var(--red); background: var(--red-bg); }
+    tbody tr.action { border-inline-start-color: var(--orange); background: var(--orange-bg); }
+    tbody tr.risk td, tbody tr.action td, tbody tr:hover td { background: transparent; }
+    tbody tr td, tbody tr td:first-child { display: block; border: 0; border-inline-start: 0; padding: 5px 10px; }
+    tbody td[data-label]::before { content: attr(data-label); display: block; font-size: 12px; font-weight: 600; color: var(--muted); }
+    tbody td.wide { grid-column: 1 / -1; }
+    td.num { text-align: start; }
+    tbody td.empty { grid-column: 1 / -1; }
+  }
+  @media (max-width: 560px) { tbody tr { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 560px) {
     .page { padding: 16px 12px 32px; }
     .form-grid { grid-template-columns: 1fr; }
@@ -220,6 +248,7 @@
       <div class="field"><label for="fActivity" data-i18n="fActivity"></label><select id="fActivity"></select></div>
       <div class="field"><label for="fTickets" data-i18n="fTickets"></label><select id="fTickets"></select></div>
       <div class="field"><label for="fProduct" data-i18n="fProduct"></label><select id="fProduct"></select></div>
+      <div class="field sort-narrow"><label for="fSort" data-i18n="sortLabel"></label><select id="fSort"></select></div>
       <button type="button" class="btn ghost" id="btnClear" data-i18n="clearFilters"></button>
     </div>
   </section>
@@ -430,9 +459,9 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       resetTitle: 'איפוס לנתוני הדוגמה',
       resetBody: 'כל הלקוחות הנוכחיים יוחלפו בנתוני הדוגמה. מומלץ לייצא CSV לפני כן. להמשיך?',
       resetOk: 'איפוס',
-      'kpi.total': 'סה"כ לקוחות', 'kpi.active': 'לקוחות פעילים', 'kpi.avg': 'ממוצע שביעות רצון', 'kpi.tickets': 'פניות פתוחות',
+      'kpi.total': 'סה"כ לקוחות', 'kpi.active': 'לקוחות פעילים', 'kpi.avg': 'ממוצע שביעות רצון', 'kpi.tickets': 'פניות פתוחות', 'kpi.urgent': 'נדרשת פעולה דחופה',
       subTotalRisk: '{n} בסיכון', subTotalNone: 'אין לקוחות בסיכון',
-      subActive: 'רכשו ב-365 הימים האחרונים', subAvg: 'מתוך 5', subTickets: 'בכל הלקוחות',
+      subActive: 'רכשו ב-365 הימים האחרונים', subAvg: 'מתוך 5', subTickets: 'בכל הלקוחות', subUrgent: 'ציון 3 בדלת כניסה/פלדלת', subUrgentOff: 'אין מבצעי מתחרים פעילים כרגע',
       searchLabel: 'חיפוש', searchPh: 'חיפוש לפי שם, מזהה, טלפון, אימייל או עיר',
       fRisk: 'רמת סיכון', fActivity: 'פעילות', fTickets: 'פניות פתוחות', fProduct: 'מוצר אחרון',
       all: 'הכל', riskYes: 'בסיכון (≤2)', riskNo: 'לא בסיכון', actYes: 'פעילים', actNo: 'לא פעילים', tixYes: 'עם פניות פתוחות', tixNo: 'בלי פניות',
@@ -440,7 +469,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       'col.id': 'מזהה', 'col.name': 'שם', 'col.phone': 'טלפון', 'col.email': 'אימייל', 'col.city': 'עיר',
       'col.lastPurchaseDate': 'רכישה אחרונה', 'col.totalPurchases': 'סך רכישות', 'col.lastProduct': 'מוצר אחרון',
       'col.satisfaction': 'שביעות רצון', 'col.openTickets': 'פניות פתוחות', 'col.actions': 'פעולות',
-      sortBy: 'מיון לפי {col}',
+      sortBy: 'מיון לפי {col}', sortLabel: 'מיון',
       count: 'מציג {n} מתוך {m} לקוחות',
       emptyAll: 'אין לקוחות עדיין', emptyAllHint: 'הוסיפו לקוח או ייבאו קובץ CSV.',
       emptyFilter: 'לא נמצאו לקוחות', emptyFilterHint: 'נסו לשנות את החיפוש או לנקות את הסינונים.',
@@ -487,9 +516,9 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       resetTitle: 'Reset to sample data',
       resetBody: 'All current customers will be replaced with the sample data. Consider exporting a CSV first. Continue?',
       resetOk: 'Reset',
-      'kpi.total': 'Total customers', 'kpi.active': 'Active customers', 'kpi.avg': 'Average satisfaction', 'kpi.tickets': 'Open tickets',
+      'kpi.total': 'Total customers', 'kpi.active': 'Active customers', 'kpi.avg': 'Average satisfaction', 'kpi.tickets': 'Open tickets', 'kpi.urgent': 'Urgent action required',
       subTotalRisk: '{n} at risk', subTotalNone: 'No customers at risk',
-      subActive: 'Purchased in the last 365 days', subAvg: 'out of 5', subTickets: 'Across all customers',
+      subActive: 'Purchased in the last 365 days', subAvg: 'out of 5', subTickets: 'Across all customers', subUrgent: 'Rating 3 on entry/steel doors', subUrgentOff: 'No competitor sales active right now',
       searchLabel: 'Search', searchPh: 'Search by name, ID, phone, email or city',
       fRisk: 'Risk level', fActivity: 'Activity', fTickets: 'Open tickets', fProduct: 'Last product',
       all: 'All', riskYes: 'At risk (≤2)', riskNo: 'Not at risk', actYes: 'Active', actNo: 'Inactive', tixYes: 'With open tickets', tixNo: 'Without',
@@ -497,7 +526,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       'col.id': 'ID', 'col.name': 'Name', 'col.phone': 'Phone', 'col.email': 'Email', 'col.city': 'City',
       'col.lastPurchaseDate': 'Last purchase', 'col.totalPurchases': 'Total purchases', 'col.lastProduct': 'Last product',
       'col.satisfaction': 'Satisfaction', 'col.openTickets': 'Open tickets', 'col.actions': 'Actions',
-      sortBy: 'Sort by {col}',
+      sortBy: 'Sort by {col}', sortLabel: 'Sort',
       count: 'Showing {n} of {m} customers',
       emptyAll: 'No customers yet', emptyAllHint: 'Add a customer or import a CSV file.',
       emptyFilter: 'No customers found', emptyFilterHint: 'Try changing the search or clearing the filters.',
@@ -765,6 +794,12 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     setOptions($('fProduct'), [all].concat(prods));
     setOptions($('f_lastProduct'), [{ value: '', label: t('select') }].concat(prods));
     setOptions($('f_satisfaction'), [{ value: '', label: t('select') }].concat([1, 2, 3, 4, 5].map(function (n) { return { value: String(n), label: t('sat' + n) }; })));
+    var sortOpts = [{ value: '', label: '—' }];
+    FIELDS.forEach(function (k) {
+      sortOpts.push({ value: k + ':asc', label: t('col.' + k) + ' ▲' });
+      sortOpts.push({ value: k + ':desc', label: t('col.' + k) + ' ▼' });
+    });
+    setOptions($('fSort'), sortOpts);
     $('fRisk').value = filters.risk; $('fActivity').value = filters.activity;
     $('fTickets').value = filters.tickets; $('fProduct').value = filters.product;
   }
@@ -776,12 +811,14 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     var rated = customers.filter(function (c) { return c.satisfaction != null; });
     var avg = rated.length ? rated.reduce(function (s, c) { return s + c.satisfaction; }, 0) / rated.length : null;
     var tix = customers.reduce(function (s, c) { return s + c.openTickets; }, 0);
+    var urgent = customers.filter(isActionRequired).length;
     var avgTxt = avg == null ? '—' : new Intl.NumberFormat(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(avg);
     var cards = [
       { label: t('kpi.total'), value: fmtInt(total), sub: risk ? t('subTotalRisk', { n: fmtInt(risk) }) : t('subTotalNone'), subClass: risk ? ' risk' : '' },
       { label: t('kpi.active'), value: fmtInt(active), sub: t('subActive') },
       { label: t('kpi.avg'), value: avgTxt, sub: t('subAvg') },
-      { label: t('kpi.tickets'), value: fmtInt(tix), sub: t('subTickets'), cls: tix > 0 ? ' warn' : '' }
+      { label: t('kpi.tickets'), value: fmtInt(tix), sub: t('subTickets'), cls: tix > 0 ? ' warn' : '' },
+      { label: t('kpi.urgent'), value: fmtInt(urgent), sub: t(COMPETITOR_PROMO_ACTIVE ? 'subUrgent' : 'subUrgentOff'), cls: ' urgent', subClass: ' urgent' }
     ];
     $('kpis').innerHTML = cards.map(function (c) {
       return '<div class="kpi' + (c.cls || '') + '"><div class="kpi-label">' + esc(c.label) + '</div><div class="kpi-value">' + esc(c.value) +
@@ -823,6 +860,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
 
   function renderHead() {
     var cols = FIELDS.slice();
+    $('fSort').value = sort.dir ? sort.key + ':' + sort.dir : '';
     var numeric = { totalPurchases: 1, openTickets: 1 };
     $('thead').innerHTML = cols.map(function (k) {
       var active = sort.dir && sort.key === k;
@@ -855,23 +893,24 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       var risk = isAtRisk(c), action = isActionRequired(c), active = isActive(c);
       var dots = '';
       for (var i = 1; i <= 5; i++) dots += '<i class="' + (c.satisfaction != null && i <= c.satisfaction ? 'on' : '') + '"></i>';
+      function td(k, cls, inner) { return '<td' + (cls ? ' class="' + cls + '"' : '') + ' data-label="' + esc(t('col.' + k)) + '">' + inner + '</td>'; }
       return '<tr class="' + (risk ? 'risk' : action ? 'action' : '') + '" data-id="' + esc(c.id) + '">' +
-        '<td class="mono">' + esc(c.id) + '</td>' +
-        '<td class="name">' + esc(c.name) + '</td>' +
-        '<td class="nowrap"><bdi dir="ltr">' + esc(c.phone) + '</bdi></td>' +
-        '<td><bdi dir="ltr">' + esc(c.email) + '</bdi></td>' +
-        '<td class="nowrap">' + esc(c.city) + '</td>' +
-        '<td class="nowrap">' + esc(fmtDate(c.lastPurchaseDate)) + (active ? '' : '<span class="tag">' + esc(t('inactive')) + '</span>') + '</td>' +
-        '<td class="num nowrap">' + esc(fmtMoney(c.totalPurchases)) + '</td>' +
-        '<td class="nowrap">' + esc(productLabel(c.lastProduct)) + '</td>' +
-        '<td class="nowrap"><span class="sat"><b>' + (c.satisfaction == null ? '—' : c.satisfaction) + '</b><span class="dots" aria-hidden="true">' + dots + '</span></span>' +
-          (risk ? '<span class="badge">' + esc(t('atRisk')) + '</span>' : '') +
-          (action ? '<span class="badge action">' + esc(t('actionRequired')) + '</span>' : '') + '</td>' +
-        '<td class="num' + (c.openTickets > 0 ? ' tix-pos' : '') + '">' + esc(fmtInt(c.openTickets)) + '</td>' +
-        '<td><div class="actions">' +
+        td('id', 'mono', esc(c.id)) +
+        td('name', 'name', esc(c.name)) +
+        td('phone', 'nowrap', '<bdi dir="ltr">' + esc(c.phone) + '</bdi>') +
+        td('email', 'wide nowrap', '<bdi dir="ltr">' + esc(c.email) + '</bdi>') +
+        td('city', '', esc(c.city)) +
+        td('lastPurchaseDate', '', '<span class="nowrap">' + esc(fmtDate(c.lastPurchaseDate)) + '</span>' + (active ? '' : '<span class="tag">' + esc(t('inactive')) + '</span>')) +
+        td('totalPurchases', 'num nowrap', esc(fmtMoney(c.totalPurchases))) +
+        td('lastProduct', '', esc(productLabel(c.lastProduct))) +
+        td('satisfaction', '', '<span class="sat"><b>' + (c.satisfaction == null ? '—' : c.satisfaction) + '</b><span class="dots" aria-hidden="true">' + dots + '</span></span>' +
+          (risk ? '<div><span class="badge">' + esc(t('atRisk')) + '</span></div>' : '') +
+          (action ? '<div><span class="badge action">' + esc(t('actionRequired')) + '</span></div>' : '')) +
+        td('openTickets', 'num' + (c.openTickets > 0 ? ' tix-pos' : ''), esc(fmtInt(c.openTickets))) +
+        td('actions', 'wide', '<div class="actions">' +
           '<button type="button" class="btn small" data-action="edit" aria-label="' + esc(t('editAria', { name: c.name })) + '">' + esc(t('edit')) + '</button>' +
           '<button type="button" class="btn small" data-action="delete" aria-label="' + esc(t('delAria', { name: c.name })) + '">' + esc(t('del')) + '</button>' +
-        '</div></td></tr>';
+        '</div>') + '</tr>';
     }).join('');
   }
   function renderFooter() {
@@ -1312,6 +1351,11 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       $(p[0]).addEventListener('change', function (e) { filters[p[1]] = e.target.value; renderTable(); });
     });
 
+    $('fSort').addEventListener('change', function (e) {
+      var v = e.target.value.split(':');
+      sort = v[1] ? { key: v[0], dir: v[1] } : { key: sort.key, dir: null };
+      renderHead(); renderTable();
+    });
     $('thead').addEventListener('click', function (e) {
       var b = e.target.closest('[data-sort]');
       if (!b) return;

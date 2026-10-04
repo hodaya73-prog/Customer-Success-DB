@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here, newest first. See [PRACTICE.md](PRACTICE.md) for how this file is maintained.
 
+## 2026-10-04 (urgent action KPI, layout, Airtable page)
+
+### Added
+- "Urgent action required" (נדרשת פעולה דחופה) KPI card, a fifth card in the KPI row, light orange. It counts the customers flagged "action required" (entry or steel door, satisfaction exactly 3, while competitor sales are active). Today: 2.
+- Airtable: interface "Customer Retention" with a page "נדרשת פעולה דחופה", a grid of the `Customers` table with a fixed filter (`satisfaction` = 3 and `lastProduct` is `entry` or `security`), sorted by open tickets. It lists C-0010 and C-0037. The Airtable tools available cannot create a grid view inside the table itself, so this interface page is the tab; no table, field or record was changed.
+- A "Sort" dropdown that appears on narrow screens, where the column headers are hidden.
+
+### Changed
+- Table layout: the table now fits its container instead of scrolling sideways, so no column (including edit/delete and open tickets) is cut off. Up to 1100 px wide it is a normal table with wrapping cells and stacked edit/delete buttons; below that each customer is a card showing every field with its label. Fields run right to left in Hebrew.
+- The "Action required" badge sits under the rating, and the badges no longer widen the column.
+- Header buttons wrap on phones instead of running off-screen.
+- `SPEC.md` updated (sections 2, 4, 7.1, 7.2, 7.11, 8, 10, 13). `PRACTICE.md` is unchanged and still needs the owner's decision on the merge-to-`main` step.
+
 ## 2026-10-04 (competitor promo flag)
 
 ### Added
