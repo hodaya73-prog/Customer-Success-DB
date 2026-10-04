@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here, newest first. See [PRACTICE.md](PRACTICE.md) for how this file is maintained.
 
+## 2026-10-04 (competitor promo flag)
+
+### Added
+- "Action required" flag in `index.html`. After a Google Search scrape (Apify `apify/google-search-scraper`, Israel, Hebrew, 6 queries) showed active competitor sales, customers whose last product is an entry door or a steel security door (`entry`, `security`) and whose satisfaction is exactly 3 get a light-orange row and a light-orange "נדרשת פעולה" / "Action required" badge next to the rating. Display only: the stored satisfaction stays 3 and nothing is written to Airtable. Currently affects C-0010 (נועה פרידמן) and C-0037 (רותם עטיה).
+- Scrape findings behind the flag (2026-10-04): Rav-Bariach had a one-week sale of 15% off entry and interior doors plus 10% off selected models and a paid ad for entry-door deals; Hamadia (which merged with Reshafim) lists "up to 18% off entry and interior doors" from 22.9.26 to 6.10.26. Other sellers (Gaash, Isradoor, Lee Door, Oz Doors) also advertise entry-door sales.
+- `COMPETITOR_PROMO_ACTIVE` constant in `index.html`; set it to `false` to switch the flag off once the sales end.
+
 ## 2026-10-04 (About)
 
 ### Changed

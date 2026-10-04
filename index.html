@@ -22,6 +22,11 @@
     --red-line: #fecaca;
     --amber: #b45309;
     --amber-bg: #fff7ed;
+    --orange: #f97316;
+    --orange-text: #9a3412;
+    --orange-bg: #ffedd5;
+    --orange-line: #fdba74;
+    --orange-tag: #fdba74;
     --radius: 12px;
     --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
   }
@@ -108,6 +113,9 @@
   tbody tr.risk td { background: var(--red-bg); border-bottom-color: var(--red-line); }
   tbody tr.risk:hover td { background: #fee2e2; }
   tbody tr.risk td:first-child { border-inline-start-color: var(--red); }
+  tbody tr.action td { background: var(--orange-bg); border-bottom-color: var(--orange-line); }
+  tbody tr.action:hover td { background: #fed7aa; }
+  tbody tr.action td:first-child { border-inline-start-color: var(--orange); }
   td.num, th.num { text-align: end; font-variant-numeric: tabular-nums; }
   th.num .sort { justify-content: flex-end; text-align: end; }
   .mono { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
@@ -115,6 +123,7 @@
   .nowrap { white-space: nowrap; }
   .tag { display: inline-block; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: #eef0f4; color: var(--muted); }
   .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--red); color: #fff; margin-inline-start: 8px; }
+  .badge.action { background: var(--orange-tag); color: var(--orange-text); }
   .sat { display: inline-flex; align-items: center; gap: 8px; }
   .sat b { min-width: 1ch; font-variant-numeric: tabular-nums; }
   .dots { display: inline-flex; gap: 3px; }
@@ -401,6 +410,12 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
   var TEXT_FIELDS = ['id', 'name', 'phone', 'email', 'city'];
   var PRODUCTS = ['entry', 'interior', 'safe_room', 'sliding', 'security', 'accessories'];
   var RISK_MAX = 2;          // satisfaction <= 2 is "at risk"
+  // Competitor promo watch: last checked 2026-10-04 (Google Search scrape). Rav-Bariach (up to 15% off entry doors)
+  // and Hamadia/Reshafim (up to 18% off, 22.9.26-6.10.26) run active sales. While true, customers whose last
+  // product is an entry or steel door and whose satisfaction is exactly 3 are flagged "action required".
+  var COMPETITOR_PROMO_ACTIVE = true;
+  var PROMO_PRODUCTS = ['entry', 'security'];
+  var PROMO_SATISFACTION = 3;
   var ACTIVE_DAYS = 365;     // purchased within the last 365 days = active
   var STORE_KEY = 'crd.customers.v1';
   var LANG_KEY = 'crd.lang';
@@ -429,7 +444,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       count: 'מציג {n} מתוך {m} לקוחות',
       emptyAll: 'אין לקוחות עדיין', emptyAllHint: 'הוסיפו לקוח או ייבאו קובץ CSV.',
       emptyFilter: 'לא נמצאו לקוחות', emptyFilterHint: 'נסו לשנות את החיפוש או לנקות את הסינונים.',
-      atRisk: 'בסיכון', inactive: 'לא פעיל',
+      atRisk: 'בסיכון', actionRequired: 'נדרשת פעולה', inactive: 'לא פעיל',
       edit: 'עריכה', del: 'מחיקה', editAria: 'עריכת {name}', delAria: 'מחיקת {name}',
       addTitle: 'הוספת לקוח', editTitle: 'עריכת לקוח', save: 'שמירה', cancel: 'ביטול', optional: '(אופציונלי)',
       select: 'בחרו…', sat1: '1 (נמוך)', sat2: '2', sat3: '3', sat4: '4', sat5: '5 (גבוה)',
@@ -486,7 +501,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       count: 'Showing {n} of {m} customers',
       emptyAll: 'No customers yet', emptyAllHint: 'Add a customer or import a CSV file.',
       emptyFilter: 'No customers found', emptyFilterHint: 'Try changing the search or clearing the filters.',
-      atRisk: 'At risk', inactive: 'Inactive',
+      atRisk: 'At risk', actionRequired: 'Action required', inactive: 'Inactive',
       edit: 'Edit', del: 'Delete', editAria: 'Edit {name}', delAria: 'Delete {name}',
       addTitle: 'Add customer', editTitle: 'Edit customer', save: 'Save', cancel: 'Cancel', optional: '(optional)',
       select: 'Select…', sat1: '1 (low)', sat2: '2', sat3: '3', sat4: '4', sat5: '5 (high)',
@@ -573,6 +588,10 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
   function daysSince(iso) { return Math.round((todayUTC() - parseISO(iso)) / 86400000); }
   function isActive(c) { return daysSince(c.lastPurchaseDate) <= ACTIVE_DAYS; }
   function isAtRisk(c) { return c.satisfaction != null && c.satisfaction <= RISK_MAX; }
+  // Display-only flag: it never changes the stored satisfaction value.
+  function isActionRequired(c) {
+    return COMPETITOR_PROMO_ACTIVE && c.satisfaction === PROMO_SATISFACTION && PROMO_PRODUCTS.indexOf(c.lastProduct) !== -1;
+  }
 
   /* ---------- Products ---------- */
   function productLabel(key) { return key ? t('prod.' + key) : '—'; }
@@ -833,10 +852,10 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       return;
     }
     $('tbody').innerHTML = rows.map(function (c) {
-      var risk = isAtRisk(c), active = isActive(c);
+      var risk = isAtRisk(c), action = isActionRequired(c), active = isActive(c);
       var dots = '';
       for (var i = 1; i <= 5; i++) dots += '<i class="' + (c.satisfaction != null && i <= c.satisfaction ? 'on' : '') + '"></i>';
-      return '<tr class="' + (risk ? 'risk' : '') + '" data-id="' + esc(c.id) + '">' +
+      return '<tr class="' + (risk ? 'risk' : action ? 'action' : '') + '" data-id="' + esc(c.id) + '">' +
         '<td class="mono">' + esc(c.id) + '</td>' +
         '<td class="name">' + esc(c.name) + '</td>' +
         '<td class="nowrap"><bdi dir="ltr">' + esc(c.phone) + '</bdi></td>' +
@@ -846,7 +865,8 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
         '<td class="num nowrap">' + esc(fmtMoney(c.totalPurchases)) + '</td>' +
         '<td class="nowrap">' + esc(productLabel(c.lastProduct)) + '</td>' +
         '<td class="nowrap"><span class="sat"><b>' + (c.satisfaction == null ? '—' : c.satisfaction) + '</b><span class="dots" aria-hidden="true">' + dots + '</span></span>' +
-          (risk ? '<span class="badge">' + esc(t('atRisk')) + '</span>' : '') + '</td>' +
+          (risk ? '<span class="badge">' + esc(t('atRisk')) + '</span>' : '') +
+          (action ? '<span class="badge action">' + esc(t('actionRequired')) + '</span>' : '') + '</td>' +
         '<td class="num' + (c.openTickets > 0 ? ' tix-pos' : '') + '">' + esc(fmtInt(c.openTickets)) + '</td>' +
         '<td><div class="actions">' +
           '<button type="button" class="btn small" data-action="edit" aria-label="' + esc(t('editAria', { name: c.name })) + '">' + esc(t('edit')) + '</button>' +
