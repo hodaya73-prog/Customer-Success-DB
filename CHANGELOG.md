@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here, newest first. See [PRACTICE.md](PRACTICE.md) for how this file is maintained.
 
+## 2026-10-04 (About)
+
+### Changed
+- GitHub "About" box filled in: a short description and the repository link (https://github.com/hodaya73-prog/Customer-Success-DB) as the website, so the project can be shared with one link.
+
 ## 2026-10-04 (revert)
 
 ### Changed
