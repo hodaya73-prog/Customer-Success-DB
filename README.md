@@ -19,6 +19,7 @@ On first launch the dashboard loads 40 sample customers. Everything you change a
 - **KPIs:** total customers, active customers (purchased in the last 365 days), average satisfaction (1 low, 5 high), and total open tickets.
 - **At-risk customers:** satisfaction of 2 or below. These rows are highlighted in red with an "At risk" badge.
 - **Urgent action required:** a fifth KPI card counts those customers. The Airtable base also has an interface page "נדרשת פעולה דחופה" listing them.
+- **Competitor check:** the Apify scrape behind the flag is recorded in [`docs/apify-scan-2026-10-04.md`](docs/apify-scan-2026-10-04.md) with the results in `data/`. It is a manual run, not scheduled.
 - **Action required:** while `COMPETITOR_PROMO_ACTIVE` is `true` in `index.html`, customers whose last product is an entry or steel door and whose satisfaction is exactly 3 get a light-orange row and an "Action required" badge (display only, the rating is not changed).
 - **Customer table:** all fields, with click-to-sort column headers.
 - **Search and filters:** free-text search plus filters for risk, activity, open tickets and last product.

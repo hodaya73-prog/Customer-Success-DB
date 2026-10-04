@@ -1,0 +1,374 @@
+{
+ "source": "Apify actor apify/google-search-scraper (Google Search Results Scraper)",
+ "runId": "QzkEkCdSJOoayzjgE",
+ "datasetId": "85dYjBJuYRtZNs9Zr",
+ "runUrl": "https://console.apify.com/actors/runs/QzkEkCdSJOoayzjgE",
+ "startedAt": "2026-10-04T19:59:17Z",
+ "finishedAt": "2026-10-04T20:01:41Z",
+ "status": "SUCCEEDED",
+ "input": {
+  "countryCode": "il",
+  "searchLanguage": "iw",
+  "languageCode": "iw",
+  "maxPagesPerQuery": 1,
+  "focusOnPaidAds": true,
+  "queriesCount": 6
+ },
+ "note": "Public Google results, trimmed to title, url, description and ads. Saved so the check can be reviewed without access to the Apify account.",
+ "queries": [
+  {
+   "term": "הנחה דלתות כניסה רב בריח",
+   "paidResults": [
+    {
+     "title": "רב-בריח: דלת כניסה שתחזיק שנים - דלת כניסה חזקה ומעוצבת",
+     "displayedUrl": "https://www.rav-bariach.co.il",
+     "description": "רב-בריח: דלת כניסה שתחזיק שנים - דלת כניסה חזקה ומעוצבתrav-bariach.co.ilhttps://www.rav-bariach.co.ilrav-bariach.co.ilhttps://www.rav-bariach.co.il        רב-בריח במחירים מיוחדים על דלתות כניסה בעיצוב מרשים, עם דגמים חדשים וצילינדרים איכותיים. דלת...יותר מ-100,000 ביקורים בחודש האחרון"
+    }
+   ],
+   "organicResults": [
+    {
+     "position": 1,
+     "title": "דלת כניסה במבצע: דלתות כניסה מעוצבות במחירי מבצע",
+     "url": "https://www.rav-bariach.co.il/sales/?srsltid=AU7gw4Xn60rr9bcqEsfHNi3DSrHK2DMM6ypwIF6d31yjnZRjcMGkHrJC",
+     "description": "לפניכם עמוד המבצעים של כל דלתות רב בריח המעוצבות לכניסה מושלמת ו/או לעיצוב הבית בסגנון שלכם. מוזמנים לגלות את הטבת המחיר של דלתות כניסה במבצע או דלתות פנים ..."
+    },
+    {
+     "position": 2,
+     "title": "דלתות כניסה מעוצבות לבית – מגוון דגמים, צבעים וחיפויים",
+     "url": "https://www.rav-bariach.co.il/product-category/entrancedoors/?srsltid=AU7gw4UJztlJ5MAFgnJWCiBqEbAO1Rgfjp_f7gqMWHiM1d95NGeAEbHo",
+     "description": "דלת כניסה דגם HALEL בעיצוב הלל אדריכלים. דלת כניסה שחורה דגם הלל - רב בריח. 10% הנחה בכפוף לתנאי המבצע. ₪ 10,220 ₪ 9,198 החל מ-."
+    },
+    {
+     "position": 3,
+     "title": "רב בריח 7% הנחה הנחה",
+     "url": "https://www.mcc.co.il/site/pg/st_reshet_out&p1=4467",
+     "description": "7% הנחה הנחה. www.rav-bariach.com. חברת רב בריח מובילה את תחום הדלתות מזה ... אולמות התצוגה המפוארים והמרהיבים של רב בריח מציגים מבחר דלתות כניסה ודלתות פנים ..."
+    },
+    {
+     "position": 4,
+     "title": "רב-בריח בשבוע מכירות של פעם ב- DOOR שאסור לפספס! ...",
+     "url": "https://www.facebook.com/RavBariach/posts/%D7%A8%D7%91-%D7%91%D7%A8%D7%99%D7%97-%D7%91%D7%A9%D7%91%D7%95%D7%A2-%D7%9E%D7%9B%D7%99%D7%A8%D7%95%D7%AA-%D7%A9%D7%9C-%D7%A4%D7%A2%D7%9D-%D7%91-door-%D7%A9%D7%90%D7%A1%D7%95%D7%A8-%D7%9C%D7%A4%D7%A1%D7%A4%D7%A1-%D7%9E%D7%91%D7%A6%D7%A2%D7%99%D7%9D-%D7%A9%D7%95%D7%95%D7%99%D7%9D-%D7%91%D7%9E%D7%99%D7%95%D7%97%D7%93-%D7%95%D7%A8%D7%A7-%D7%9C%D7%A9%D7%91%D7%95%D7%A2-%D7%90%D7%97%D7%93/1242732231222380/",
+     "description": "מבצעים שווים במיוחד ורק לשבוע אחד בלבד: 15% הנחה על מגוון דלתות פנים 15% הנחה על דלתות כניסה מובילות מנגנון SMART מתנה ברכישת 4 ..."
+    },
+    {
+     "position": 5,
+     "title": "רב-בריח | דלתות כניסה, דלתות פנים ומנעולים חכמים – האתר הרשמי",
+     "url": "https://www.rav-bariach.co.il/?srsltid=AU7gw4W1AYgUSCwg1YBb5H72wAJtXm0mfIVMdCZI_SINMYXcpZWXCyub",
+     "description": "רב-בריח – חברת הדלתות המובילה בישראל: דלתות כניסה, דלתות פנים, דלתות פלדה, מנעולים חכמים SMART ופתרונות מיגון לבית. היכנסו לקטלוג ולאולמות התצוגה >>"
+    },
+    {
+     "position": 6,
+     "title": "דלתות במבצע | דלתות במחירים אטרקטיביים",
+     "url": "https://www.rav-bariach.co.il/product-category/entrancedoors/sales/?srsltid=AU7gw4W_rvk7hcYSr5nPUmOiqQJqNWVjpEcVHwuwtD5dryyyaTc0QRjB",
+     "description": "דלתות במבצע · דגם גאיה. ₪ 7,320 החל מ- · לפרטים ורכישה · דגם גאיה. דלת כניסה לבנה מעוצבת - רב בריח ₪ 11,712 החל מ-. לפרטים ורכישה · דגם גאיה. ₪ 14,640 החל מ-."
+    },
+    {
+     "position": 7,
+     "title": "דלתות פנים מעוצבות נבחרות",
+     "url": "https://www.rav-bariach.co.il/interior-doors/%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%A4%D7%A0%D7%99%D7%9D-%D7%A0%D7%91%D7%97%D7%A8%D7%95%D7%AA/?srsltid=AU7gw4WmQ-kVNsAsxOP9-FRs02QZ_fP-wm4XeJ1srVpb6K3Ye5lFkknt",
+     "description": "דלתות פנים מעוצבות – מבחר דלתות איכותיות לחדרים מבית רב בריח המשלבות יופי וסטנדרט גבוה, היכנסו לאתר לבחירת דלת פנים, דלתות לבית בשלל דגמים וצבעים >>"
+    },
+    {
+     "position": 8,
+     "title": "דלתות פלדה פלדלת תוצרת חברת רב בריח 🚪 ...",
+     "url": "https://www.locks.co.il/category/%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%A4%D7%9C%D7%93%D7%9C%D7%AA",
+     "description": "דלתות פלדלת רב בריח במגוון צבעים, סוגים ועיצובים באתר של המרכז הישראלי למיגון. היכנסו לאתר למידע על מחירים כולל התקנה, מפרטים טכניים ועוד מוצרי נעילה."
+    }
+   ]
+  },
+  {
+   "term": "מבצע דלתות פלדלת רב-בריח",
+   "paidResults": [
+    {
+     "title": "רב-בריח: דלת כניסה שתחזיק שנים | מתחדשים בדלתות כניסה...מבחר דלתות כניסה החל מ 2499 שח - מבצע החלפת דלת רב בריח -...",
+     "displayedUrl": "https://www.rav-bariach.co.il › דלתות › כניסהhttps://www.razdoors.co.il › דלת_כניסה_במבצע",
+     "description": ""
+    }
+   ],
+   "organicResults": [
+    {
+     "position": 1,
+     "title": "דלתות כניסה במבצע | דלתות כניסה מעוצבות במחירי מבצע",
+     "url": "https://www.rav-bariach.co.il/sales/enterence_doors/?srsltid=AU7gw4W7I4s7rvk6bbRG1Pn-IX3hgaSq93d1yzLUUbOdzkmPBCX1iGYJ",
+     "description": "מבצעים · דגם אור. גרייז' חולי. ₪ 5,440 החל מ- · לפרטים ורכישה · דגם לימסול. ₪ 7,940 החל מ-. לפרטים ורכישה · דגם אוקספורד. ₪ 7,220 החל מ- · לפרטים ורכישה · חדש. דלת ..."
+    },
+    {
+     "position": 2,
+     "title": "דלתות במבצע | דלתות במחירים אטרקטיביים",
+     "url": "https://www.rav-bariach.co.il/product-category/entrancedoors/sales/?srsltid=AU7gw4XtKxdVvWxtivsnYvawln5OjWCUyb-gGIeK6G4yi8cRY2BpGg8w",
+     "description": "דלתות במבצע · דגם גאיה. ₪ 7,320 החל מ- · לפרטים ורכישה · דגם גאיה. דלת כניסה לבנה מעוצבת - רב בריח ₪ 11,712 החל מ-. לפרטים ורכישה · דגם גאיה. ₪ 14,640 החל מ-."
+    },
+    {
+     "position": 3,
+     "title": "דלתות כניסה מעוצבות לבית – מגוון דגמים, צבעים וחיפויים",
+     "url": "https://www.rav-bariach.co.il/product-category/entrancedoors/?srsltid=AU7gw4Wp4z_MjP4DrOggPDIer-98yTOaXg0v3Uxe3QzRYFCkwmjaF3Xb",
+     "description": "דלת כניסה דגם HALEL בעיצוב הלל אדריכלים. דלת כניסה שחורה דגם הלל - רב בריח. 10% הנחה בכפוף לתנאי המבצע. ₪ 10,220 ₪ 9,198 החל מ-."
+    },
+    {
+     "position": 4,
+     "title": "רב-בריח | דלתות כניסה, דלתות פנים ומנעולים חכמים – האתר הרשמי",
+     "url": "https://www.rav-bariach.co.il/?srsltid=AU7gw4WY5ViJxpdwKnoJ6qExdi_d96EKEqmdzb-R5c3h_PSVLJ89QDSr",
+     "description": "רב-בריח – חברת הדלתות המובילה בישראל: דלתות כניסה, דלתות פנים, דלתות פלדה, מנעולים חכמים SMART ופתרונות מיגון לבית. היכנסו לקטלוג ולאולמות התצוגה >>"
+    },
+    {
+     "position": 5,
+     "title": "דלתות פלדה פלדלת תוצרת חברת רב בריח 🚪 ...",
+     "url": "https://www.locks.co.il/category/%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%A4%D7%9C%D7%93%D7%9C%D7%AA",
+     "description": "מבחר גדול של דלתות פלדה תוצרת רב בריח ניתן להזמין את כל הדלתות כדלת סטנדרטית, דלת וחצי או דו כדלת כפולה. כל הדלתות מגיעות בגימור צבע בתנור לפי מניפת הצבעים ..."
+    },
+    {
+     "position": 6,
+     "title": "רב-בריח בשבוע מכירות של פעם ב- DOOR שאסור לפספס! ...",
+     "url": "https://www.facebook.com/RavBariach/posts/%D7%A8%D7%91-%D7%91%D7%A8%D7%99%D7%97-%D7%91%D7%A9%D7%91%D7%95%D7%A2-%D7%9E%D7%9B%D7%99%D7%A8%D7%95%D7%AA-%D7%A9%D7%9C-%D7%A4%D7%A2%D7%9D-%D7%91-door-%D7%A9%D7%90%D7%A1%D7%95%D7%A8-%D7%9C%D7%A4%D7%A1%D7%A4%D7%A1-%D7%9E%D7%91%D7%A6%D7%A2%D7%99%D7%9D-%D7%A9%D7%95%D7%95%D7%99%D7%9D-%D7%91%D7%9E%D7%99%D7%95%D7%97%D7%93-%D7%95%D7%A8%D7%A7-%D7%9C%D7%A9%D7%91%D7%95%D7%A2-%D7%90%D7%97%D7%93/1242732231222380/",
+     "description": "מבצעים שווים במיוחד ורק לשבוע אחד בלבד: 15% הנחה על מגוון דלתות פנים 15% הנחה על דלתות כניסה מובילות מנגנון SMART מתנה ברכישת 4 ..."
+    },
+    {
+     "position": 7,
+     "title": "דלת פלדלת מחיר כולל התקנה | כל המידע והמחירים של ...",
+     "url": "https://www.midrag.co.il/Content/Price/22312",
+     "description": "מחיר דלת פלדלת צבועה בתנור כולל התקנה יהיה יקר ב- 1,000 ₪ לעומת מחיר פלדלת עם טפט. סימן קריאה חשוב לדעת: ציפוי פלדלת עם טפט של רב בריח, (אותה חברה שגם ..."
+    },
+    {
+     "position": 8,
+     "title": "רב בריח 7% הנחה הנחה",
+     "url": "https://www.mcc.co.il/site/pg/st_reshet_out&p1=4467",
+     "description": "7% הנחה הנחה. www.rav-bariach.com. חברת רב בריח מובילה את תחום הדלתות מזה ... אולמות התצוגה המפוארים והמרהיבים של רב בריח מציגים מבחר דלתות כניסה ודלתות ..."
+    }
+   ]
+  },
+  {
+   "term": "הנחה על פלדלת",
+   "paidResults": [],
+   "organicResults": [
+    {
+     "position": 1,
+     "title": "דלת כניסה במבצע: דלתות כניסה מעוצבות במחירי מבצע",
+     "url": "https://www.rav-bariach.co.il/sales/?srsltid=AU7gw4WeMzO1a5GQd8TEWvkPmkGMcdAAT_yeduPDOQlvYynE3cHOHz9f",
+     "description": "לפניכם עמוד המבצעים של כל דלתות רב בריח המעוצבות לכניסה מושלמת ו/או לעיצוב הבית בסגנון שלכם. מוזמנים לגלות את הטבת המחיר של דלתות כניסה במבצע או דלתות פנים ..."
+    },
+    {
+     "position": 2,
+     "title": "דלת פלדלת מחיר כולל התקנה מבצע התקנת דלת החל מ- 2799 ש\"ח",
+     "url": "https://www.uzilock.co.il/%D7%A9%D7%99%D7%A8%D7%95%D7%AA%D7%99-%D7%9E%D7%A0%D7%A2%D7%95%D7%9C%D7%A0%D7%95%D7%AA/%D7%93%D7%9C%D7%AA-%D7%A4%D7%9C%D7%93%D7%9C%D7%AA-%D7%9E%D7%97%D7%99%D7%A8-%D7%9B%D7%95%D7%9C%D7%9C-%D7%94%D7%AA%D7%A7%D7%A0%D7%94/",
+     "description": "הנחה של 10-15% על המחיר הכולל. השוואת מחירים: דלת פלדלת מחיר כולל ... תוכן עניינים. דלת פלדלת מחיר כולל התקנה. דלת פלדלת: מחיר כולל התקנה – המדריך המקיף. מבוא."
+    },
+    {
+     "position": 3,
+     "title": "3% הנחה ב דלתות PD למשלמים בכרטיס המועדון",
+     "url": "https://top.style.co.il/?page=Benefit&uuid=33ba5045-f62b-4eef-aabc-de0b73b6&note=fun",
+     "description": "3% הנחה ב דלתות PD למשלמים בכרטיס המועדון | אתר הטבות, הנחות ומבצעים אטרקטיביים אך ורק לכם מחזיקי כרטיס ISRACARDTOP! היכנסו לאתר ותמצאו מגוון מבצעים ..."
+    },
+    {
+     "position": 4,
+     "title": "Rav-Bariach Group l קבוצת רב-בריח",
+     "url": "https://www.facebook.com/RavBariach/posts/%D7%9E%D7%95%D7%9B%D7%A0%D7%99%D7%9D-%D7%A9%D7%91%D7%95%D7%A2-%D7%9E%D7%9B%D7%99%D7%A8%D7%95%D7%AA-%D7%A9%D7%9C-%D7%A4%D7%A2%D7%9D-%D7%91-door%D7%94%D7%98%D7%91%D7%95%D7%AA-%D7%9E%D7%98%D7%95%D7%A8%D7%A4%D7%95%D7%AA-%D7%A2%D7%9C-%D7%9E%D7%92%D7%95%D7%95%D7%9F-%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%91%D7%90%D7%99%D7%9B%D7%95%D7%AA-%D7%A8%D7%91-%D7%91%D7%A8%D7%99%D7%97-%D7%A9%D7%90%D7%A1%D7%95/1035507085278230/",
+     "description": "מוכנים? שבוע מכירות של פעם ב-Door! הטבות מטורפות על מגוון דלתות באיכות רב בריח שאסור לכם לפספס 15% הנחה על מגוון דלתות פנים וכניסה*."
+    },
+    {
+     "position": 5,
+     "title": "דלתות כניסה במבצע - מבצעים על דלתות חוץ",
+     "url": "https://www.isradoor.co.il/%D7%9E%D7%91%D7%A6%D7%A2%D7%99%D7%9D/?srsltid=AU7gw4UyieATSTW4xyWjUYFqGDbhxptN61wj-6be516IKv7VTOYdpexN",
+     "description": "דלתות כניסה במבצע אצל ישראדור, מגוון דלתות חוץ מעוצבות במחירים משתלמים ובאיכות גבוהה, לזמן מוגבל בלבד, עם אפשרות להתאמה אישית לכל פתח בבית."
+    },
+    {
+     "position": 6,
+     "title": "דלתות כניסה מעוצבות לבית – מגוון דגמים, צבעים וחיפויים",
+     "url": "https://www.rav-bariach.co.il/product-category/entrancedoors/?srsltid=AU7gw4VAKYLvVGWpBIr_aptvrq5eA2cPVpzPHHCanX_dpMBZruFDanRc",
+     "description": "דלת כניסה דגם HALEL בעיצוב הלל אדריכלים. דלת כניסה שחורה דגם הלל - רב בריח. 10% הנחה בכפוף לתנאי המבצע. ₪ 10,220 ₪ 9,198 החל מ-."
+    },
+    {
+     "position": 7,
+     "title": "דלתות במבצע",
+     "url": "https://www.ozdlatot.co.il/156959/%D7%9E%D7%91%D7%A6%D7%A2%D7%99%D7%9D",
+     "description": "עוז דלתות מציעה מגוון גדול של דלתות פלדה ודלתות כניסה מעוצבות במבצע. ריכזנו כמה מבצעים חמים המתעדכנים מעת לעת. מומלץ לצפות גם במבצעי דלתות פלדה ודלתות כניסה ..."
+    },
+    {
+     "position": 8,
+     "title": "דלת פלדלת מחיר כולל התקנה | כל המידע והמחירים של ...",
+     "url": "https://www.midrag.co.il/Content/Price/22312",
+     "description": "מחיר דלת פלדלת כולל התקנה עם חלון לדוגמא, יהיה לפעמים יקר פי שתיים ממחיר התקנת דלת פלדלת סטנדרטית ויגיע לכ - 7,000-7,500 ₪. דלת ציפוי פלדלת - פלדלת מגיעה כשהיא ..."
+    }
+   ]
+  },
+  {
+   "term": "מבצע דלתות כניסה חמדיה",
+   "paidResults": [],
+   "organicResults": [
+    {
+     "position": 1,
+     "title": "שבוע מכירות חגיגי בדלתות חמדיה! מתחדשים בדלתות חדשות לבית: ...",
+     "url": "https://www.instagram.com/p/DdyJtz_mqVO/",
+     "description": "מתחדשים בדלתות חדשות לבית: מגיעים לאולם התצוגה של דלתות חמדיה במתחם סוהו פולג ונהנים מעד 18% הנחה על דלתות פנים שקטות ודלתות כניסה מעוצבות מפלדה ..."
+    },
+    {
+     "position": 2,
+     "title": "מבצע סוף שנה בדלתות רשפים שאסור לפספס! גם הנחה וגם מתנה ...",
+     "url": "https://www.facebook.com/hamadiadoor/posts/%D7%9E%D7%91%D7%A6%D7%A2-%D7%A1%D7%95%D7%A3-%D7%A9%D7%A0%D7%94-%D7%91%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%A8%D7%A9%D7%A4%D7%99%D7%9D-%D7%A9%D7%90%D7%A1%D7%95%D7%A8-%D7%9C%D7%A4%D7%A1%D7%A4%D7%A1%D7%92%D7%9D-%D7%94%D7%A0%D7%97%D7%94-%D7%95%D7%92%D7%9D-%D7%9E%D7%AA%D7%A0%D7%94-%D7%9C%D7%A4%D7%A8%D7%98%D7%99%D7%9D-%D7%94%D7%99%D7%9B%D7%A0%D7%A1%D7%95-/1532259946906077/",
+     "description": "מבצע סוף שנה בדלתות רשפים שאסור לפספס! גם הנחה וגם מתנה >> לפרטים היכנסו ! https://goo. gl/d71Zso · מתלבטים אילו דלתות לבחור? · שני מפעלים וניסיון ..."
+    },
+    {
+     "position": 3,
+     "title": "קניתם בית? תתחדשו! דלתות הן השקעה חד-פעמית שתשרת אתכם שנים ...",
+     "url": "https://www.instagram.com/reel/DWgRmjjj-We/",
+     "description": ""
+    },
+    {
+     "position": 4,
+     "title": "דלת מעוצבת חמדיה מבית דלתות חמדיה | הדירה - פורטל לעיצוב הבית",
+     "url": "https://www.adira.co.il/companies/1851/products/26534/",
+     "description": "תיאור המוצר: דלת מעוצבת חמדיה, סדרה: LUXURY פורניר, דגם: M1 הולנדי, צבע: טנגניקה מדיה, משקוף ברצלונה ישר, העשוי עץ רב שכבתי בציפוי פורניר טבעי עם אטם גומי ..."
+    },
+    {
+     "position": 5,
+     "title": "מבצע דלת כניסה  החל מ- 2490 ₪ מוזמנים להתרשם ממבחר דלתות ...",
+     "url": "https://www.facebook.com/gaash1.co.il/videos/%D7%9E%D7%91%D7%A6%D7%A2-%D7%93%D7%9C%D7%AA-%D7%9B%D7%A0%D7%99%D7%A1%D7%94-/1609977593705881/",
+     "description": ""
+    },
+    {
+     "position": 6,
+     "title": "חמדיה דלתות",
+     "url": "https://yvpccj9chdpp-css-import.aandv.lt/",
+     "description": "רשת דלתות חמדיה היא חברה ישראלית לייצור דלתות פנים ודלתות כניסה, לאחר שהתמזגה עם דלתות רשפים. צפו בקטלוג האינטראקטיבי המלא של דלתות חמדיה - מגוון דלתות פנים ..."
+    },
+    {
+     "position": 7,
+     "title": "דלתות של חמדיה עם משקוף יד שנייה כמו חדש רק 350₪ כל דלת יש ...",
+     "url": "https://www.facebook.com/groups/186182019096864/posts/1015941476120910/",
+     "description": "דלתות של חמדיה עם משקוף יד שנייה כמו חדש רק 350₪ כל דלת יש לי 4 דלתות מידות 80/18/שמואל 70/16/שמואל לבא לקחת מירושלים."
+    },
+    {
+     "position": 8,
+     "title": "שמעתם על \"התקנה יבשה\" לדלתות הכניסה? הפתרון החכם גם ללקוחות ...",
+     "url": "https://www.facebook.com/hamadiadoor/videos/%D7%A9%D7%9E%D7%A2%D7%AA%D7%9D-%D7%A2%D7%9C-%D7%94%D7%AA%D7%A7%D7%A0%D7%94-%D7%99%D7%91%D7%A9%D7%94-%D7%9C%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%94%D7%9B%D7%A0%D7%99%D7%A1%D7%94-%D7%94%D7%A4%D7%AA%D7%A8%D7%95%D7%9F-%D7%94%D7%97%D7%9B%D7%9D-%D7%92%D7%9D-%D7%9C%D7%9C%D7%A7%D7%95%D7%97%D7%95%D7%AA-%D7%95%D7%92%D7%9D-%D7%9C%D7%A7%D7%91%D7%9C%D7%A0%D7%99%D7%9D%D7%91%D7%A9%D7%99%D7%98%D7%AA-%D7%94%D7%94%D7%AA%D7%A7%D7%A0%D7%94/1179587136712005/",
+     "description": ""
+    }
+   ]
+  },
+  {
+   "term": "מבצע דלתות רשפים פלדלת",
+   "paidResults": [],
+   "organicResults": [
+    {
+     "position": 1,
+     "title": "דלתות כניסה במבצע | דלתות כניסה מעוצבות במחירי מבצע",
+     "url": "https://www.rav-bariach.co.il/sales/enterence_doors/?srsltid=AU7gw4UaHTKImhUYAopM33ejpjfUPMSiTEYLnK9Tcivza46kd236IxBR",
+     "description": "מבצעים · דגם אור. גרייז' חולי. ₪ 5,440 החל מ- · לפרטים ורכישה · דגם לימסול. ₪ 7,940 החל מ-. לפרטים ורכישה · דגם אוקספורד. ₪ 7,220 החל מ- · לפרטים ורכישה · חדש. דלת ..."
+    },
+    {
+     "position": 2,
+     "title": "דלתות חמדיה: דלתות פנים מעוצבות ושקטות, פי 2.5 מהמתחרים",
+     "url": "https://www.hamadia-doors.co.il/",
+     "description": "דלתות הפנים של חמדיה מביאות סטנדרט חדש לבית. עיצוב מדהים, בידוד רעשים פי 2.5 מהמתחרים ועמידות למים בזכות מבנה פלקסבורד ופורמייקה. צפו בדלתות הפנים האיכותיות ..."
+    },
+    {
+     "position": 3,
+     "title": "רשפים - קטלוג המוצרים המלא",
+     "url": "https://www.adira.co.il/companies/86/products/page/1/",
+     "description": "דלתות כניסה פאסקרה רשפים · דלתות כניסה פרובנס רשפים · דלתות כניסה פאסקרה כנף וחצי רשפים · דלתות כניסה טורונטו רשפים · ידית לדלת פנים רשפים."
+    },
+    {
+     "position": 4,
+     "title": "חברת \"דלתות רשפים\" גאה להיות יצרנית ישראלית כחול-לבן מזה כ-30 ...",
+     "url": "https://www.facebook.com/hamadiadoor/videos/%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%A8%D7%A9%D7%A4%D7%99%D7%9D-%D7%A1%D7%A0%D7%99%D7%A3-%D7%90%D7%A9%D7%A7%D7%9C%D7%95%D7%9F/885932561538822/",
+     "description": ""
+    },
+    {
+     "position": 5,
+     "title": "דלתות כניסה מחירים | כל המידע על מחירי דלתות כניסה - במידרג",
+     "url": "https://www.midrag.co.il/Content/Price/8319",
+     "description": "לדוגמא: אם תרצו לרכוש דלת כניסה מעוצבת בעלת כנף אחד שעולה 5,000 ₪, במִפְתִָח גדול במיוחד (1.80X2.50 מטר) תשלמו עליה 20 אחוז מעבר למחיר, כלומר: 6,000 ₪ סה\"כ."
+    },
+    {
+     "position": 6,
+     "title": "דגמי הדלתות שעוד לא ראיתם בקולקציות החדשות של דלתות חמדיה ...",
+     "url": "https://www.ynet.co.il/article/b1ae6shd5",
+     "description": "2 ביוני 2022 — סדרת הדלתות החדשה ביותר של דלתות רשפים היא MOON, דלת כניסה עם אמירה חדשנית. כבר מבחוץ, דגם ה-MOON יוצר ציפייה עם קווים חדים ומינימליסטיים, ..."
+    },
+    {
+     "position": 7,
+     "title": "רשפים דלתות כניסה מעוצבות",
+     "url": "https://greenbook.co.il/bs2/9736/44090",
+     "description": "לרשת דלתות חמדיה 11 אולמות תצוגה בפריסה ארצית, ואולם הדגל נמצא ברחוב הלח\"י 9 בני ברק. • תוצרת כחול לבן במפעלים בישראל. • ניסיון של למעלה מ-70 שנה. • התאמה אישית ..."
+    },
+    {
+     "position": 8,
+     "title": "דלתות חמדיה‏ ‏‎(@hamadiadoor)",
+     "url": "https://www.facebook.com/hamadiadoor/?locale=he_IL",
+     "description": "דלתות חמדיה‏. ‏‏33885‏ עוקבים · ‏265‏ מדברים על כך‏. ‏כל הדלתות בבית אחד, דלתות כניסה ופנים מעוצבות. לתיאום פגישה ללא התחייבות חייגו 6124*‏"
+    },
+    {
+     "position": 9,
+     "title": "תיקון דלתות רשפים - ללא נזק החלפה מנעול כיוון במחירים הוגנים",
+     "url": "https://www.locksmith-artzi.com/door-technician/%D7%AA%D7%99%D7%A7%D7%95%D7%9F-%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%A8%D7%A9%D7%A4%D7%99%D7%9D/",
+     "description": "תיקון דלתות רשפים ללא נזק אביתר מומחה ב כיוון דלתות רשפים , החלפת מנעולים , הרמת דלת , מתקן דלת פנים לבית ולמשרד מחירים הוגנים הגעה מהירה עד בית הלקוח."
+    }
+   ]
+  },
+  {
+   "term": "מבצע דלת כניסה",
+   "paidResults": [
+    {
+     "title": "מבחר דלתות כניסה החל מ 2499 שח - מבצע החלפת דלת רב בריח -...",
+     "displayedUrl": "https://www.razdoors.co.il",
+     "description": ""
+    }
+   ],
+   "organicResults": [
+    {
+     "position": 1,
+     "title": "דלתות כניסה במבצע | דלתות כניסה מעוצבות במחירי מבצע",
+     "url": "https://www.rav-bariach.co.il/sales/enterence_doors/?srsltid=AU7gw4VzZCTbd_K4UY-a-cyZ99huPPFH67vzilHY-SLG6IgoJ-x1Mo3q",
+     "description": "מבצעים · דגם אור. גרייז' חולי. ₪ 5,440 החל מ- · לפרטים ורכישה · דגם לימסול. ₪ 7,940 החל מ-. לפרטים ורכישה · דגם אוקספורד. ₪ 7,220 החל מ- · לפרטים ורכישה · חדש. דלת ..."
+    },
+    {
+     "position": 2,
+     "title": "דלתות כניסה במבצע | דלתות כניסה מבצעים בשבילך",
+     "url": "https://www.leedoor.co.il/%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%9B%D7%A0%D7%99%D7%A1%D7%94/%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%9B%D7%A0%D7%99%D7%A1%D7%94-%D7%91%D7%9E%D7%91%D7%A6%D7%A2/",
+     "description": "אצלנו יש את מה שחיפשתם לבית, מבחר גדול מאוד של דלתות כניסה במבצע שאנו מציגים בפניכם אצלנו באתר ובאולמות התצוגה ברחבי הארץ."
+    },
+    {
+     "position": 3,
+     "title": "דלתות כניסה במבצע - מבצעים על דלתות חוץ",
+     "url": "https://www.isradoor.co.il/%D7%9E%D7%91%D7%A6%D7%A2%D7%99%D7%9D/?srsltid=AU7gw4WRBqddMj62EyQYfR77YvBHvi2BgNtMd4OTTpSmDl65mENsPsE8",
+     "description": "דלתות כניסה במבצע אצל ישראדור, מגוון דלתות חוץ מעוצבות במחירים משתלמים ובאיכות גבוהה, לזמן מוגבל בלבד, עם אפשרות להתאמה אישית לכל פתח בבית."
+    },
+    {
+     "position": 4,
+     "title": "דלתות כניסה במבצע | דלת כניסה לבית במחיר חסר תקדים",
+     "url": "https://www.gaash1.co.il/category/%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%9B%D7%A0%D7%99%D7%A1%D7%94-%D7%91%D7%9E%D7%91%D7%A6%D7%A2/",
+     "description": "דלתות כניסה במבצע מיוחד! גאש מציעה מגוון דלתות כניסה מעוצבות במבצע כולל פרזול (ידיות ניקל / ברונזה, סגר ביטחון ועוד.) היכנסו והזמינו דלת כניסה לבית שלכם >"
+    },
+    {
+     "position": 5,
+     "title": "דלתות כניסה במבצע: איכות וביטחון במחיר משתלם",
+     "url": "https://sls.co.il/%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%9B%D7%A0%D7%99%D7%A1%D7%94-%D7%91%D7%9E%D7%91%D7%A6%D7%A2-%D7%90%D7%99%D7%9B%D7%95%D7%AA-%D7%95%D7%91%D7%99%D7%98%D7%97%D7%95%D7%9F-%D7%91%D7%9E%D7%97%D7%99%D7%A8/",
+     "description": "דלתות כניסה במבצע הן הזדמנות מצוינת לשדרג את הבית עם דלת איכותית, בטוחה ובעלת עיצוב מרהיב – והכל במחיר משתלם. היכנסו למידע על המבצעים שלנו>>"
+    },
+    {
+     "position": 6,
+     "title": "דלתות פנים במבצע - מבצעי החודש, מחיר כולל התקנה",
+     "url": "https://www.hamadia-doors.co.il/%D7%9E%D7%91%D7%A6%D7%A2%D7%99%D7%9D",
+     "description": "בין התאריכים 22.9.26-6.10.26 יתקיים באולמות התצוגה מבצע: \"עד 18% הנחה על דלתות כניסה ופנים, ברכישת 4 דלתות פנים או יותר\", בהתאם למפורט בתקנון. לתקנון » ..."
+    },
+    {
+     "position": 7,
+     "title": "דלתות כניסה מפלדה במבצע - LOCK ME",
+     "url": "https://lockme.co.il/category/%D7%93%D7%9C%D7%AA%D7%95%D7%AA/%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%9B%D7%A0%D7%99%D7%A1%D7%94-%D7%93%D7%9C%D7%AA%D7%95%D7%AA/%D7%93%D7%9C%D7%AA%D7%95%D7%AA-%D7%9B%D7%A0%D7%99%D7%A1%D7%94-%D7%A4%D7%9C%D7%93%D7%9C%D7%AA-%D7%91%D7%9E%D7%91%D7%A6%D7%A2/?srsltid=AU7gw4Xmobo0xYRRHdO6og0FbeGWrdvrWz0FztYe8tBlSGCwQnZVrR_Y",
+     "description": "דלתות כניסה מפלדה במבצע · דלת כניסה דגם בייסיק כולל משקוף והתקנה באיזור המרכז בלבד · דלת כניסה דגם בייסיק עם ידית צינור מעוצבת כולל משקוף והתקנה באיזור המרכז בלבד."
+    },
+    {
+     "position": 8,
+     "title": "דלתות כניסה במחירי מבצע - צפו בקטלוג 2020 - שריונית חסם",
+     "url": "https://www.sl-superlock.co.il/category.aspx?categoryid=2",
+     "description": "דלת בצביעה אלקטרוסטטית בצבעים אפוקסיים מגורענים. דלת כניסה 7006 צבעים וידיות. מחיר. 4931 ₪. דלת כניסה 7008. דלת 7008 מסדרת Supreme ‏דלתות ..."
+    },
+    {
+     "position": 9,
+     "title": "מציאון",
+     "url": "https://www.elidoor.co.il/excess-doors/",
+     "description": "מציאון - לבחור את הדלת שאתה רוצה ב50 אחוז הנחה, בין אם אתם מחפשים דלתות כניסה במבצע או דלתות כניסה מתצוגה, בואו להתרשם מהמבחר שלנו."
+    }
+   ]
+  }
+ ]
+}

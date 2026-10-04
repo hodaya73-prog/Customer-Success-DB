@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here, newest first. See [PRACTICE.md](PRACTICE.md) for how this file is maintained.
 
+## 2026-10-04 (Apify evidence)
+
+### Added
+- `docs/apify-scan-2026-10-04.md` and `data/apify-scan-2026-10-04.json`: the record of the Apify Google Search scrape behind the "Action required" flag (actor, run ID `QzkEkCdSJOoayzjgE`, dataset, settings, the six queries, findings and limits). Until now the run was described only in a sentence, with nothing in the repository to open.
+- A footer line in the dashboard with the date of the last competitor-sale check and a link to that record.
+- `SPEC.md` section 7.11 states where the evidence is and that the check is manual and not scheduled.
+
 ## 2026-10-04 (urgent action KPI, layout, Airtable page)
 
 ### Added

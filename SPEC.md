@@ -186,6 +186,8 @@ Each customer is a record with the following fields:
 ### 7.11 Competitor-Sale Watch (Action Required)
 
 - **Trigger:** a Google Search scrape through Apify (`apify/google-search-scraper`, country Israel, Hebrew) for phrases such as "מבצע דלת כניסה", "הנחה על פלדלת" and the names Rav-Bariach, Hamadia and Reshafim. The scrape is run by hand (through Claude) and is not part of the page; the result is recorded as the constant `COMPETITOR_PROMO_ACTIVE` in `index.html`.
+- **Evidence in the repo:** [`docs/apify-scan-2026-10-04.md`](docs/apify-scan-2026-10-04.md) (run ID, settings, queries, findings) and [`data/apify-scan-2026-10-04.json`](data/apify-scan-2026-10-04.json) (the results). The dashboard footer shows the date of the last check with a link to it (`COMPETITOR_CHECK_DATE` and `COMPETITOR_CHECK_URL` in `index.html`).
+- **No automatic refresh:** the check is a single manual run, not scheduled. The flag does not follow the sales by itself; after a sale ends the constant must be updated by hand until a schedule is built.
 - **Last check (2026-10-04):** sales are active. Rav-Bariach: a one-week sale with 15% off entry and interior doors and 10% off selected models, plus a paid Google ad. Hamadia (merged with Reshafim): up to 18% off entry and interior doors from 22.9.26 to 6.10.26. Gaash, Isradoor, Lee Door and Oz Doors also advertise entry-door sales.
 - **Rule:** while `COMPETITOR_PROMO_ACTIVE` is `true`, a customer is action-required when `lastProduct` is `entry` or `security` and `satisfaction` is exactly 3. When the constant is `false`, no customer is flagged and the KPI shows 0.
 - **Display only:** the flag is computed in the page and never written to the data, so satisfaction stays 3, and nothing is written to Airtable or CSV.

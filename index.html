@@ -267,6 +267,7 @@
   </section>
 
   <p class="footer" id="footer"></p>
+  <p class="footer" id="promoNote"></p>
 </div>
 
 <input type="file" id="fileInput" accept=".csv,text/csv" hidden>
@@ -443,6 +444,8 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
   // and Hamadia/Reshafim (up to 18% off, 22.9.26-6.10.26) run active sales. While true, customers whose last
   // product is an entry or steel door and whose satisfaction is exactly 3 are flagged "action required".
   var COMPETITOR_PROMO_ACTIVE = true;
+  var COMPETITOR_CHECK_DATE = '2026-10-04';
+  var COMPETITOR_CHECK_URL = 'https://github.com/hodaya73-prog/Customer-Success-DB/blob/main/docs/apify-scan-2026-10-04.md';
   var PROMO_PRODUCTS = ['entry', 'security'];
   var PROMO_SATISFACTION = 3;
   var ACTIVE_DAYS = 365;     // purchased within the last 365 days = active
@@ -470,6 +473,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       'col.lastPurchaseDate': 'רכישה אחרונה', 'col.totalPurchases': 'סך רכישות', 'col.lastProduct': 'מוצר אחרון',
       'col.satisfaction': 'שביעות רצון', 'col.openTickets': 'פניות פתוחות', 'col.actions': 'פעולות',
       sortBy: 'מיון לפי {col}', sortLabel: 'מיון',
+      promoNote: 'בדיקת מבצעי מתחרים אחרונה: {date} (Apify, חיפוש גוגל).', promoLink: 'לתוצאות הבדיקה',
       count: 'מציג {n} מתוך {m} לקוחות',
       emptyAll: 'אין לקוחות עדיין', emptyAllHint: 'הוסיפו לקוח או ייבאו קובץ CSV.',
       emptyFilter: 'לא נמצאו לקוחות', emptyFilterHint: 'נסו לשנות את החיפוש או לנקות את הסינונים.',
@@ -527,6 +531,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       'col.lastPurchaseDate': 'Last purchase', 'col.totalPurchases': 'Total purchases', 'col.lastProduct': 'Last product',
       'col.satisfaction': 'Satisfaction', 'col.openTickets': 'Open tickets', 'col.actions': 'Actions',
       sortBy: 'Sort by {col}', sortLabel: 'Sort',
+      promoNote: 'Last competitor-sale check: {date} (Apify, Google Search).', promoLink: 'See the results',
       count: 'Showing {n} of {m} customers',
       emptyAll: 'No customers yet', emptyAllHint: 'Add a customer or import a CSV file.',
       emptyFilter: 'No customers found', emptyFilterHint: 'Try changing the search or clearing the filters.',
@@ -913,7 +918,11 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
         '</div>') + '</tr>';
     }).join('');
   }
+  function renderPromoNote() {
+    $('promoNote').innerHTML = esc(t('promoNote', { date: fmtDate(COMPETITOR_CHECK_DATE) })) + ' <a href="' + esc(COMPETITOR_CHECK_URL) + '" target="_blank" rel="noopener">' + esc(t('promoLink')) + '</a>';
+  }
   function renderFooter() {
+    renderPromoNote();
     $('footer').innerHTML = esc(at ? t('footerAt') : t('footer')) + (storageOk || at ? '' : '<span class="warn-text">' + esc(t('storageOff')) + '</span>');
   }
   function renderMode() {
