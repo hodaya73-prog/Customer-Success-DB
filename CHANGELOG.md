@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here, newest first. See [PRACTICE.md](PRACTICE.md) for how this file is maintained.
 
+## 2026-10-05 (weather icon verified live)
+
+### Changed
+- `SPEC.md` section 7.12 now records the live check of the weather icon. The owner checked the published site in Chrome (DevTools, Network tab): after deleting `crd.weather.v1` from Local Storage and reloading, a request to `api.open-meteo.com/v1/forecast` with `current=weather_code` returned HTTP 200 and the icons appeared. This closes the open point from the entry below, where live access could not be verified from the Claude Cloud environment (network proxy 403).
+- A hard reload that keeps `crd.weather.v1` sends no Open-Meteo request, because results are cached for 30 minutes. This is intended, and is noted in the spec.
+- Still not verified live: the geocoding request (`geocoding-api.open-meteo.com`), which is sent only for a city that is not in the built-in list. No code changed.
+
 ## 2026-10-05 (weather icon)
 
 ### Added
