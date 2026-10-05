@@ -27,6 +27,7 @@ A door store runs a customer retention department. The department manager needs 
 - Mock data loaded on first launch.
 - Optional connection to an Airtable base, as an alternative to browser storage (section 7.10).
 - Competitor-sale watch: an "Action required" flag and an "Urgent action required" KPI for customers exposed to active competitor sales (section 7.11).
+- A small current-weather icon beside the city name in the existing City column, from the Open-Meteo API (section 7.12).
 
 **Out of scope (V1):**
 
@@ -34,6 +35,7 @@ A door store runs a customer retention department. The department manager needs 
 - A custom server or database of our own. Cross-device sync is available only through the optional Airtable connection.
 - Charts, historical reports, and tracking satisfaction changes over time.
 - Ticket management (open tickets are shown as a number only, without detail).
+- Weather beyond a small icon: no temperature, forecast or history in the table, no weather column, filter or sort, and no weather data stored anywhere (section 7.12).
 
 ## 3. Technology Decisions (approved)
 
@@ -44,6 +46,7 @@ A door store runs a customer retention department. The department manager needs 
 | Customer fields | The recommended set of 10 fields (section 5) |
 | Filtering | "Filtering" and "screening" are treated as the same thing. The filters are chosen at the team's discretion (section 7.3) |
 | Font | System fonts only, nothing loaded from the internet |
+| External API | One external service besides the optional Airtable connection: Open-Meteo, used without an API key to show a weather icon beside the city (section 7.12). The page calls it directly from the browser, and the Content-Security-Policy allow-list is in section 9 |
 
 ## 4. Business Definitions
 
@@ -73,7 +76,7 @@ Each customer is a record with the following fields:
 | `satisfaction` | Satisfaction | Integer | Yes | 1–5 |
 | `openTickets` | Open tickets | Integer | Yes | ≥ 0, default 0 |
 
-**Computed fields (not stored):** `isActive`, `isAtRisk`.
+**Computed fields (not stored):** `isActive`, `isAtRisk`, and the weather icon shown beside `city` (section 7.12). The data model does not change: there is no weather field, in the page, in CSV or in Airtable, and `city` stays free text.
 
 **`lastProduct` values:** stored and exported as language-independent keys: `entry`, `interior`, `safe_room`, `sliding`, `security`, `accessories`. The UI shows a translated label in the selected language. Import also accepts the English or Hebrew label, case-insensitive.
 
@@ -105,6 +108,7 @@ Each customer is a record with the following fields:
 ### 7.2 Customer Table
 
 - Placed below the KPIs and shows all 10 fields.
+- **City column:** shows the city name as before, with a small weather icon beside it (section 7.12). No column is added and no temperature is shown in the table.
 - **Action-required customer** (section 7.11): the whole row has a light-orange background and a light-orange "Action required" badge sits under the rating. The stored satisfaction is not changed. The text badge means the highlight does not rely on color alone.
 - **At-risk customer** (satisfaction ≤ 2): the row is highlighted in red (light red background and a red badge or dot in the satisfaction column). The highlight does not rely on color alone: a text badge "At risk" is also shown.
 - The satisfaction column shows the number with a simple visual indicator (dots or a colored badge).
@@ -173,7 +177,7 @@ Each customer is a record with the following fields:
 ### 7.10 Airtable Connection (optional)
 
 - A "Connect to Airtable" button in the header opens a dialog with three fields: Base ID, table name (default `Customers`) and a personal access token.
-- **The token is never part of the code or the repository.** The page is public, so the manager types the token once; it is stored in that browser's `localStorage` and sent only to `https://api.airtable.com`. A Content-Security-Policy in the page blocks every other network destination.
+- **The token is never part of the code or the repository.** The page is public, so the manager types the token once; it is stored in that browser's `localStorage` and sent only to `https://api.airtable.com`. A Content-Security-Policy in the page blocks every network destination except the allow-list in section 9 (Airtable, and Open-Meteo for the weather icon, which never receives the token or any customer data).
 - The token needs `data.records:read` and `data.records:write` on the one base only.
 - On connect the dashboard loads all records (paginated) and shows a "Connected to Airtable" indicator. If loading fails, the reason is shown with a Retry button, and nothing is saved.
 - Field mapping uses the same names as the CSV columns (section 5). Airtable stores `lastProduct` as a single select with the keys from section 5 and `satisfaction` as a 1-5 rating.
@@ -194,10 +198,43 @@ Each customer is a record with the following fields:
 - **Display:** light-orange row, light-orange "Action required" badge (Hebrew: "נדרשת פעולה") under the rating, and the "Urgent action required" KPI card (section 7.1). Both language versions are translated.
 - **Airtable table:** the Airtable base has a table "נדרשת פעולה דחופה" (not an interface page, and no colors) holding a copy of the `Customers` rows that satisfy the rule: `name`, `id`, `phone`, `email`, `city`, `lastPurchaseDate`, `totalPurchases`, `lastProduct` (plain text, `entry` or `security`), `satisfaction` (number), `openTickets`, plus `apifyRunId` and `scanDate`, which point to the Apify run that confirmed the sales (see the evidence file above). It was filled by hand from the 2026-10-04 run with C-0010 and C-0037. It is a snapshot: it does not update by itself, because there is no schedule and no automation yet, and the `Customers` table is never changed by it. The dashboard does not read this table. If the constant is switched off, the table must be emptied by hand.
 
+### 7.12 Weather Icon Beside the City (external API: Open-Meteo)
+
+**Status:** implemented in `index.html` (2026-10-05). **Verification:** tested in a real browser engine (Chromium) against mocked Open-Meteo responses only. Live access to Open-Meteo was **not** verified from the Claude Cloud environment, because the environment's network proxy returned 403 for both Open-Meteo hosts. A check against the live service from a normal browser (Network tab: `api.open-meteo.com/v1/forecast?...&current=weather_code`) is still to be done.
+
+**What the system does:** for the cities that appear in the customer table, the page calls the Open-Meteo API from the browser, reads the current weather condition, and shows the result as a small icon beside the city name in the existing City column.
+
+- **No new column.** The icon sits inside the existing City cell, next to the city name that is already there. In the card layout (section 7.2) it appears next to the city value of the same labelled field.
+- **Simple icons only:** sun (clear), partly cloudy, cloudy, fog, rain (drizzle, rain and showers), snow, thunderstorm. They are built into the page (emoji or inline SVG). No image or icon file is loaded from the internet. Open-Meteo returns a WMO weather code, which is mapped to these icons:
+
+| Open-Meteo `weather_code` | Condition | Icon |
+|---|---|---|
+| 0 | Clear sky | Sun |
+| 1, 2 | Mainly clear, partly cloudy | Partly cloudy |
+| 3 | Overcast | Cloudy |
+| 45, 48 | Fog | Fog |
+| 51-57, 61-67, 80-82 | Drizzle, rain, freezing rain, rain showers | Rain |
+| 71-77, 85, 86 | Snow, snow grains, snow showers | Snow |
+| 95, 96, 99 | Thunderstorm | Thunderstorm |
+| anything else | Unknown | No icon |
+
+- **No temperature in the table.** Only the icon is shown. The icon has a text alternative (tooltip and accessible label) that names the condition in the selected language, for example "Rain" or "גשם", and never contains the temperature or any other number.
+- **Current weather only.** One lookup per distinct city, not per customer. Lookups happen when the table first loads, when customers are loaded or refreshed (including from Airtable), and when a new city appears through add, edit or import. Results may be kept in memory, and optionally cached in the browser for about 30 minutes; the cache holds only city names, coordinates and weather codes, never customer records.
+- **Supplementary information only.** Weather does not affect Churn Risk, the at-risk rule, the action-required rule (section 7.11), satisfaction, the KPIs, search, filters or sorting. It is not editable and is not part of any customer record.
+- **Nothing is stored or changed.** Customer data and `city` values are never modified or normalised. Weather is not written to Airtable, the Airtable schema does not change, and no field is added. Weather is not part of the local customer data in `localStorage`, the CSV export or the CSV import.
+- **Open-Meteo without an API key.** No account, key or token is used or sent to Open-Meteo. Two public endpoints are used: the geocoding API (`https://geocoding-api.open-meteo.com`) to turn a city name into coordinates, and the forecast API (`https://api.open-meteo.com`) for the current weather at those coordinates. Only the city name or coordinates are sent: never a customer name, phone, email, ID, rating or any other field.
+- **Attribution:** a short line in the page footer, "Weather data by Open-Meteo.com", linking to https://open-meteo.com. Open-Meteo's free API is intended for non-commercial use, so its terms must be checked before any commercial use.
+- **Failure is silent and harmless.** If a city is empty or unknown, the request fails, times out, is blocked or the device is offline, that city is shown without an icon. No error message or toast is shown, and loading, editing, Airtable and every other feature work exactly as before.
+- **Language and layout:** the condition text follows the selected language (Hebrew/English). The icon is about the height of the text, never changes a row's red or orange highlight, and must not make the table wider than its container or cut off any field (section 7.2).
+- **Coordinates (as implemented):** the page first uses a built-in list of coordinates for the 30 cities in the sample data and a few common alternative spellings (for example "קרית שמונה"). Only a city that is not in the list is sent to the geocoding API (`countryCode=IL`), up to 10 per round, and its coordinates are cached. Because of this, the geocoding host is contacted only for new cities. The built-in coordinates are approximate city-center values and were not checked against an external source.
+- **Parameters (as implemented):** the forecast request asks only for `current=weather_code` (never a temperature) and covers up to 50 cities per request, with the cities as comma-separated coordinates. A request is abandoned after 8 seconds. Results are cached for 30 minutes in memory and in `localStorage` under the key `crd.weather.v1` (city names, coordinates and weather codes only). After a failed lookup a city is not asked again for 5 minutes.
+- **Known risk:** Open-Meteo's geocoding may not match every Hebrew spelling of a city. If a Hebrew name is not found the city simply has no icon.
+
 ## 8. Design and UX Requirements
 
 - **Layout:** header (the name "Customer Retention Dashboard" in both languages + language toggle) → KPI row → toolbar (search, filters, import, export, add) → table.
 - **Color scheme:** light background, white cards, one calm primary color (blue). Red is used only for risk and for the "Open tickets" card, light orange only for the action-required flag and its KPI card, and the "Add customer" button is mint green.
+- **Weather icon:** small and neutral, shown beside the city name only. It is not part of the color scheme above and never changes the red or orange highlighting. It is never the only carrier of information, because it has a text alternative (section 7.12).
 - **Typography:** system fonts only (`system-ui`, `Segoe UI`, `Arial`, sans-serif), which support Hebrew and work offline. Readable size, high contrast.
 - **KPIs:** a large, clear number with a small label below it. The "Open tickets" card is shown in light red when the value is greater than 0.
 - **Accessibility:** WCAG AA contrast, keyboard navigation, labels on all fields, dialogs with focus management, and risk highlighting that does not rely on color alone.
@@ -207,7 +244,8 @@ Each customer is a record with the following fields:
 ## 9. Non-Functional Requirements
 
 - **Performance:** instant response with up to a few thousand customers.
-- **Privacy:** by default all data stays in the browser. Nothing is sent to a server, there are no external libraries, and no fonts or files are loaded from the internet. When connected to Airtable, customer data and the token go only to `api.airtable.com`.
+- **Privacy:** by default all customer data stays in the browser. There are no external libraries, and no fonts, images or files are loaded from the internet. The only data that leaves the page without an Airtable connection is city names (and the coordinates derived from them), sent to Open-Meteo for the weather icon (section 7.12). When connected to Airtable, customer data and the token go only to `api.airtable.com`. Open-Meteo never receives customer names, phones, emails, IDs, ratings or the token.
+- **External APIs and Content-Security-Policy:** the page's `connect-src` allow-list contains exactly `https://api.airtable.com` (optional Airtable connection) and `https://geocoding-api.open-meteo.com` and `https://api.open-meteo.com` (weather icon, no API key). Every other destination stays blocked, and `object-src`, `base-uri` and `form-action` stay restricted. Adding any other external service requires changing this section first.
 - **Compatibility:** current versions of Chrome, Edge, Firefox and Safari.
 - **Security:** content coming from a CSV is rendered as text and never executed (HTML escaping), to prevent code injection. On export, cells starting with `=`, `+`, `-` or `@` are neutralized (CSV injection).
 - **Data retention:** clearing browser data deletes the data. Export therefore serves as the backup, and a reminder is shown in the interface.
@@ -228,13 +266,20 @@ Each customer is a record with the following fields:
 12. With the mock data and `COMPETITOR_PROMO_ACTIVE` = `true`, exactly C-0010 and C-0037 have a light-orange row and the "Action required" badge, the "Urgent action required" KPI shows 2, and their satisfaction is still 3. With the constant `false` nobody is flagged and the KPI shows 0.
 13. At widths from 390 px to 1400 px, every field of every customer (including the actions) is fully visible, with no horizontal page scroll and no clipped text, in both languages.
 14. The Airtable table "נדרשת פעולה דחופה" contains exactly the customers who satisfy the rule of section 7.11 as of the last Apify check (2026-10-04: C-0010 and C-0037).
-15. There are no console errors in any of these scenarios.
+15. Weather icon (section 7.12): every customer whose city has a known weather condition shows a small icon beside the city name in the existing City column; no column is added, no temperature or other number appears in the table, and the city text is unchanged. Checked in both languages and at widths from 390 px to 1400 px with Open-Meteo responses covering each icon in the mapping table.
+16. Weather is supplementary: changing the weather returned for a city changes nothing in the at-risk marking, the action-required marking, the KPIs, search, filters, sorting or any satisfaction value.
+17. If Open-Meteo is unreachable or blocked, or a city is empty or unknown, the table and every other feature still work, the city is shown without an icon, and no error message is shown.
+18. Network check: the only destinations contacted are `api.airtable.com` (when connected) and the two Open-Meteo hosts of section 9. No API key, token or `Authorization` header is sent to Open-Meteo, and its URLs contain only city names or coordinates.
+19. After using the page with weather enabled, the Airtable schema and records are unchanged, and weather values appear nowhere in Airtable, the local customer data, the CSV export or the CSV import.
+20. The footer shows the Open-Meteo attribution with a working link.
+21. There are no console errors in any of these scenarios.
 
 ## 11. Test Strategy
 
 - Manual testing against the acceptance criteria (section 10) in the browser, in both languages.
 - Edge cases: empty base, a single customer, satisfaction of exactly 2 (at risk) and exactly 3 (not at risk), a purchase exactly 365 days ago and 366 days ago, a CSV with commas and quotes in fields, a CSV with missing headers, an empty CSV.
 - Verifying the KPI calculations with a short script against the mock data file.
+- Weather (section 7.12): test the weather-code-to-icon mapping for every row of its table plus an unknown code; run the page against mocked Open-Meteo responses (success, empty result, HTTP error, timeout, offline) so the tests do not depend on the live service, and check the network destinations and the absence of any key or customer data in the requests.
 
 ## 12. Deliverables (after the SPEC is approved)
 
@@ -266,3 +311,6 @@ Each customer is a record with the following fields:
 | 13 | Competitor check | A manual Apify Google Search scrape, recorded as a constant in `index.html`; not a live feature of the page |
 | 14 | Airtable list | A separate table with a copy of the matching customers, filled from the Apify check; no interface page, no colors. Updating it automatically is not built yet (section 7.11) |
 | 15 | Table layout | Full table up to 1100 px, cards below it, so nothing is ever cut off (section 7.2) |
+| 16 | External API | Open-Meteo, called directly from the browser, no API key, to show a small current-weather icon beside the city in the existing City column. No new column, no temperature in the table (section 7.12) |
+| 17 | Weather data | Supplementary only: not stored (not in Airtable, CSV or customer data), no schema change, and no effect on Churn Risk, at-risk, action-required or satisfaction (section 7.12) |
+| 18 | CSP and privacy | `connect-src` allow-list of exactly Airtable and the two Open-Meteo hosts; only city names and coordinates are sent to Open-Meteo (section 9) |
