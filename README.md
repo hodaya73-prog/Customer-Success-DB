@@ -22,6 +22,7 @@ On first launch the dashboard loads 40 sample customers. Everything you change a
 - **Competitor check:** the Apify scrape behind the flag is recorded in [`docs/apify-scan-2026-10-04.md`](docs/apify-scan-2026-10-04.md) with the results in `data/`. It is a manual run, not scheduled.
 - **Action required:** while `COMPETITOR_PROMO_ACTIVE` is `true` in `index.html`, customers whose last product is an entry or steel door and whose satisfaction is exactly 3 get a light-orange row and an "Action required" badge (display only, the rating is not changed).
 - **Customer table:** all fields, with click-to-sort column headers.
+- **Weather icon:** a small current-weather icon (sun, clouds, rain and so on) beside each city, from [Open-Meteo](https://open-meteo.com/) (no API key). It needs an internet connection; if the weather cannot be loaded the city is shown without an icon. It is display only: it is not saved anywhere and does not affect risk, KPIs, search, filters or sorting. Only city names and coordinates are sent to Open-Meteo, never customer data.
 - **Search and filters:** free-text search plus filters for risk, activity, open tickets and last product.
 - **Manage customers:** add, edit and delete.
 - **CSV import and export:** export always includes all customers. Import merges by customer ID and shows a summary, including duplicates and rejected rows, before applying.
@@ -39,7 +40,7 @@ The token is stored only in your browser and is sent only to `api.airtable.com`.
 
 ## Data and backup
 
-Without Airtable, data lives only in your browser. Clearing browser data deletes it, so use **Export CSV** regularly as a backup. **Reset data** restores the sample customers. With Airtable connected, the customers are stored in Airtable.
+Without Airtable, customer data lives only in your browser (the weather icon sends only city names to Open-Meteo). Clearing browser data deletes it, so use **Export CSV** regularly as a backup. **Reset data** restores the sample customers. With Airtable connected, the customers are stored in Airtable.
 
 [`mock-customers.csv`](mock-customers.csv) is the sample data, in the same format the import accepts. All people in it are fictitious.
 

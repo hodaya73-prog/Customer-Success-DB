@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented here, newest first. See [PRACTICE.md](PRACTICE.md) for how this file is maintained.
 
+## 2026-10-05 (weather icon)
+
+### Added
+- Weather icon beside the city name in the existing City column of the customer table, from the Open-Meteo API (no API key). The icon (sun, partly cloudy, cloudy, fog, rain, snow, thunderstorm) comes from the `weather_code` of the current weather; no column was added and no temperature is shown. Each icon has a text alternative in Hebrew or English that names the condition. If the weather cannot be loaded (unknown city, offline, timeout, HTTP error, empty or invalid answer), the city is shown without an icon and no message appears.
+- Built-in coordinates for the 30 cities in the sample data plus common alternative spellings; other cities are looked up through the Open-Meteo geocoding API. Results are cached for 30 minutes in memory and in `localStorage` (`crd.weather.v1`, city names, coordinates and weather codes only). The forecast request asks only for `weather_code`, in batches of up to 50 cities, with an 8-second timeout.
+- Footer line "Weather data by Open-Meteo.com" (Hebrew: "נתוני מזג אוויר מאת") with a link.
+- `SPEC.md` section 7.12, acceptance criteria 15-21 and decisions 16-18 for the feature.
+
+### Changed
+- The Content-Security-Policy now allows `https://geocoding-api.open-meteo.com` and `https://api.open-meteo.com` in addition to `https://api.airtable.com`. All other network destinations stay blocked.
+- Privacy: without an Airtable connection the only data that leaves the page is city names and the coordinates derived from them, sent to Open-Meteo. No customer names, phones, emails, IDs, ratings or tokens are sent. `SPEC.md` sections 2, 3, 5, 7.2, 7.10, 8, 9, 11 and 13 updated to match.
+- Weather is display only: it is not stored in customer records, Airtable, the CSV export or the customers' `localStorage`, and it does not affect risk, "action required", the KPIs, search, filters or sorting. The Airtable connection and schema are unchanged.
+
+### Verification
+- Tested in Chromium against mocked Open-Meteo responses: icons for all 40 sample customers, the CSP allow-list, language switch, caching, unknown and prototype-like city names, failure modes (offline, HTTP 500, invalid JSON, empty answer, unknown code, timeout), the Airtable load path, and no horizontal overflow from 390 px to 1400 px.
+- **Live access to Open-Meteo was not verified from the Claude Cloud environment, because the network proxy returned 403 for both Open-Meteo hosts.** The request format and the CORS behavior from a real browser still need to be checked once on a machine with open network access.
+
 ## 2026-10-04 (Airtable table instead of interface page)
 
 ### Added

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- The Airtable token never leaves this browser except to api.airtable.com: other network requests are blocked. -->
-<meta http-equiv="Content-Security-Policy" content="connect-src https://api.airtable.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<!-- The Airtable token never leaves this browser except to api.airtable.com. The only other allowed destinations are the two Open-Meteo hosts (weather icon beside the city, no API key, city names and coordinates only): other network requests are blocked. -->
+<meta http-equiv="Content-Security-Policy" content="connect-src https://api.airtable.com https://geocoding-api.open-meteo.com https://api.open-meteo.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Customer Retention Dashboard</title>
 <style>
   :root {
@@ -127,6 +127,7 @@
   .tag { display: inline-block; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: #eef0f4; color: var(--muted); }
   .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--red); color: #fff; margin-top: 4px; }
   .badge.action { background: var(--orange-tag); color: var(--orange-text); }
+  .wx { display: inline-block; margin-inline-start: 5px; font-size: 14px; line-height: 1; vertical-align: baseline; }
   .sat { display: inline-flex; align-items: center; gap: 8px; }
   .sat b { min-width: 1ch; font-variant-numeric: tabular-nums; }
   .dots { display: inline-flex; gap: 3px; }
@@ -268,6 +269,7 @@
 
   <p class="footer" id="footer"></p>
   <p class="footer" id="promoNote"></p>
+  <p class="footer" id="wxNote"></p>
 </div>
 
 <input type="file" id="fileInput" accept=".csv,text/csv" hidden>
@@ -474,6 +476,8 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       'col.satisfaction': 'שביעות רצון', 'col.openTickets': 'פניות פתוחות', 'col.actions': 'פעולות',
       sortBy: 'מיון לפי {col}', sortLabel: 'מיון',
       promoNote: 'בדיקת מבצעי מתחרים אחרונה: {date} (Apify, חיפוש גוגל).', promoLink: 'לתוצאות הבדיקה',
+      'wx.clear': 'שמיים בהירים', 'wx.partly': 'מעונן חלקית', 'wx.cloudy': 'מעונן', 'wx.fog': 'ערפל', 'wx.rain': 'גשם', 'wx.snow': 'שלג', 'wx.storm': 'סופת רעמים',
+      wxAttrib: 'נתוני מזג אוויר מאת',
       count: 'מציג {n} מתוך {m} לקוחות',
       emptyAll: 'אין לקוחות עדיין', emptyAllHint: 'הוסיפו לקוח או ייבאו קובץ CSV.',
       emptyFilter: 'לא נמצאו לקוחות', emptyFilterHint: 'נסו לשנות את החיפוש או לנקות את הסינונים.',
@@ -532,6 +536,8 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       'col.satisfaction': 'Satisfaction', 'col.openTickets': 'Open tickets', 'col.actions': 'Actions',
       sortBy: 'Sort by {col}', sortLabel: 'Sort',
       promoNote: 'Last competitor-sale check: {date} (Apify, Google Search).', promoLink: 'See the results',
+      'wx.clear': 'Clear sky', 'wx.partly': 'Partly cloudy', 'wx.cloudy': 'Cloudy', 'wx.fog': 'Fog', 'wx.rain': 'Rain', 'wx.snow': 'Snow', 'wx.storm': 'Thunderstorm',
+      wxAttrib: 'Weather data by',
       count: 'Showing {n} of {m} customers',
       emptyAll: 'No customers yet', emptyAllHint: 'Add a customer or import a CSV file.',
       emptyFilter: 'No customers found', emptyFilterHint: 'Try changing the search or clearing the filters.',
@@ -773,6 +779,162 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     return 'C-' + String(max + 1).padStart(4, '0');
   }
 
+  /* ---------- Weather icon beside the city (Open-Meteo, no API key; SPEC 7.12) ---------- */
+  // Display only. Weather is kept apart from the customer records: it never reaches Airtable, the CSV or
+  // the customer data in localStorage, and nothing else in the page (risk, KPIs, search, filters, sorting) reads it.
+  // Only city names (geocoding) and coordinates (forecast) are sent to Open-Meteo, never customer data.
+  var WX_GEO_URL = 'https://geocoding-api.open-meteo.com/v1/search';
+  var WX_FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
+  var WX_KEY = 'crd.weather.v1';     // cache of city names, coordinates and weather codes only
+  var WX_TTL = 30 * 60 * 1000;       // reuse a result for 30 minutes
+  var WX_RETRY = 5 * 60 * 1000;      // after a failure, do not ask again for 5 minutes
+  var WX_TIMEOUT = 8000;             // give up on a request after 8 seconds
+  var WX_BATCH = 50;                 // locations per forecast request
+  var WX_GEO_PER_ROUND = 10;         // cities looked up through the geocoding API per round
+  var WX_CITIES = {                  // built-in coordinates (lat, lon) for common Israeli cities; others go through geocoding
+    'תל אביב': [32.0853, 34.7818], 'ירושלים': [31.7683, 35.2137], 'חיפה': [32.7940, 34.9896], 'באר שבע': [31.2530, 34.7915],
+    'נתניה': [32.3215, 34.8532], 'אשדוד': [31.8014, 34.6435], 'ראשון לציון': [31.9730, 34.7925], 'פתח תקווה': [32.0840, 34.8878],
+    'רמת גן': [32.0684, 34.8248], 'הרצליה': [32.1663, 34.8436], 'חולון': [32.0158, 34.7874], 'בת ים': [32.0231, 34.7503],
+    'רחובות': [31.8928, 34.8113], 'מודיעין': [31.8969, 35.0104], 'כפר סבא': [32.1780, 34.9066], 'רעננה': [32.1848, 34.8713],
+    'אשקלון': [31.6688, 34.5743], 'אילת': [29.5577, 34.9519], 'טבריה': [32.7959, 35.5310], 'נהריה': [33.0089, 35.0981],
+    'קריית שמונה': [33.2075, 35.5696], 'כרמיאל': [32.9190, 35.2905], 'עפולה': [32.6078, 35.2897], 'חדרה': [32.4340, 34.9196],
+    'לוד': [31.9515, 34.8954], 'יבנה': [31.8781, 34.7396], 'נס ציונה': [31.9293, 34.7987], 'זכרון יעקב': [32.5714, 34.9528],
+    'מבשרת ציון': [31.7977, 35.1514], 'קריית גת': [31.6100, 34.7642]
+  };
+  var WX_ALIASES = {                 // other common spellings; used only to find coordinates, the stored city is never changed
+    'קרית שמונה': 'קריית שמונה', 'קרית גת': 'קריית גת', 'תל-אביב': 'תל אביב', 'תל אביב יפו': 'תל אביב', 'תל אביב-יפו': 'תל אביב',
+    'פתח-תקווה': 'פתח תקווה', 'פתח תקוה': 'פתח תקווה', 'באר-שבע': 'באר שבע', 'זיכרון יעקב': 'זכרון יעקב', 'זכרון-יעקב': 'זכרון יעקב',
+    'ראשון-לציון': 'ראשון לציון', 'ראשל"צ': 'ראשון לציון', 'רמת-גן': 'רמת גן', 'בת-ים': 'בת ים', 'נס-ציונה': 'נס ציונה',
+    'כפר-סבא': 'כפר סבא', 'מודיעין-מכבים-רעות': 'מודיעין', 'מודיעין מכבים רעות': 'מודיעין'
+  };
+  var WX_ICONS = { clear: '☀️', partly: '⛅', cloudy: '☁️', fog: '🌫️', rain: '🌧️', snow: '❄️', storm: '⛈️' };
+  // Object.create(null): a city typed as "constructor" or "__proto__" in a CSV must not hit Object.prototype.
+  var wx = { codes: Object.create(null), coords: Object.create(null), miss: Object.create(null), busy: false };
+
+  function has(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+  function wxKey(city) { var k = String(city == null ? '' : city).replace(/\s+/g, ' ').trim(); return k.length > 60 ? '' : k; }
+  // WMO weather code (as returned by Open-Meteo) -> icon kind; null for unknown codes
+  function wxKind(code) {
+    if (!Number.isInteger(code)) return null;
+    if (code === 0) return 'clear';
+    if (code === 1 || code === 2) return 'partly';
+    if (code === 3) return 'cloudy';
+    if (code === 45 || code === 48) return 'fog';
+    if ((code >= 51 && code <= 57) || (code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return 'rain';
+    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 'snow';
+    if (code === 95 || code === 96 || code === 99) return 'storm';
+    return null;
+  }
+  function wxHtml(city) {
+    var key = wxKey(city), hit = key && has(wx.codes, key) ? wx.codes[key] : null;
+    var kind = hit ? wxKind(hit[0]) : null;
+    if (!kind) return '';
+    var label = esc(t('wx.' + kind));    // condition name only, never a temperature
+    return '<span class="wx" role="img" aria-label="' + label + '" title="' + label + '">' + WX_ICONS[kind] + '</span>';
+  }
+  function wxKnownCoords(key) {
+    var base = has(WX_ALIASES, key) ? WX_ALIASES[key] : key;
+    if (has(WX_CITIES, base)) return WX_CITIES[base];
+    return has(wx.coords, key) ? wx.coords[key] : null;
+  }
+  function wxLoad() {
+    try {
+      var j = JSON.parse(localStorage.getItem(WX_KEY)), now = Date.now();
+      if (!j || typeof j !== 'object') return;
+      Object.keys(j.c || {}).forEach(function (k) {
+        var v = j.c[k];
+        if (Array.isArray(v) && wxKind(v[0]) && now - v[1] < WX_TTL) wx.codes[k] = [v[0], v[1]];
+      });
+      Object.keys(j.g || {}).forEach(function (k) {
+        var v = j.g[k];
+        if (Array.isArray(v) && isFinite(v[0]) && isFinite(v[1])) wx.coords[k] = [Number(v[0]), Number(v[1])];
+      });
+    } catch (e) { /* no cache: ask again */ }
+  }
+  function wxSave() {
+    try {
+      var c = {}, g = {};
+      Object.keys(wx.codes).forEach(function (k) { c[k] = wx.codes[k]; });
+      Object.keys(wx.coords).forEach(function (k) { g[k] = wx.coords[k]; });
+      localStorage.setItem(WX_KEY, JSON.stringify({ c: c, g: g }));
+    } catch (e) { /* cache is optional */ }
+  }
+  // Resolves to parsed JSON, or null on any failure (offline, blocked, timeout, HTTP error, bad JSON)
+  function wxFetchJson(url) {
+    return new Promise(function (resolve) {
+      var done = false, ctl = typeof AbortController === 'function' ? new AbortController() : null, timer;
+      function fin(v) { if (!done) { done = true; clearTimeout(timer); resolve(v); } }
+      timer = setTimeout(function () { if (ctl) ctl.abort(); fin(null); }, WX_TIMEOUT);
+      try {
+        fetch(url, ctl ? { signal: ctl.signal } : undefined)
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(fin, function () { fin(null); });
+      } catch (e) { fin(null); }
+    });
+  }
+  function wxGeocode(key) {
+    var url = WX_GEO_URL + '?name=' + encodeURIComponent(key) + '&count=1&language=he&countryCode=IL&format=json';
+    return wxFetchJson(url).then(function (j) {
+      var r = j && Array.isArray(j.results) ? j.results[0] : null;
+      if (!r || !isFinite(r.latitude) || !isFinite(r.longitude)) return null;
+      if (r.country_code && r.country_code !== 'IL') return null;
+      return [Number(r.latitude), Number(r.longitude)];
+    });
+  }
+  // keys: cities that all have coordinates. One forecast request per batch; results come back in request order.
+  function wxForecast(keys) {
+    var lat = keys.map(function (k) { return wxKnownCoords(k)[0].toFixed(4); }).join(',');
+    var lon = keys.map(function (k) { return wxKnownCoords(k)[1].toFixed(4); }).join(',');
+    return wxFetchJson(WX_FORECAST_URL + '?latitude=' + lat + '&longitude=' + lon + '&current=weather_code').then(function (j) {
+      var list = Array.isArray(j) ? j : (j ? [j] : []), changed = false, now = Date.now();
+      keys.forEach(function (k, i) {
+        var code = list[i] && list[i].current ? list[i].current.weather_code : null;
+        if (wxKind(code)) { wx.codes[k] = [code, now]; delete wx.miss[k]; changed = true; }
+        else wx.miss[k] = now;
+      });
+      return changed;
+    });
+  }
+  function ensureWeather() {
+    if (wx.busy) return;
+    var now = Date.now(), seen = Object.create(null), need = [];
+    customers.forEach(function (c) {
+      var key = wxKey(c.city);
+      if (!key || seen[key]) return;
+      seen[key] = 1;
+      if (has(wx.codes, key) && now - wx.codes[key][1] < WX_TTL) return;
+      if (has(wx.miss, key) && now - wx.miss[key] < WX_RETRY) return;
+      need.push(key);
+    });
+    if (!need.length) return;
+    wx.busy = true;
+    var geoLeft = WX_GEO_PER_ROUND, ready = [], changed = false, skipped = 0;
+    // 1) coordinates: built-in list first, geocoding for the rest
+    var step = need.reduce(function (chain, key) {
+      return chain.then(function () {
+        if (wxKnownCoords(key)) { ready.push(key); return; }
+        if (geoLeft <= 0) { skipped++; return; }   // picked up in the next round
+        geoLeft--;
+        return wxGeocode(key).then(function (xy) {
+          if (xy) { wx.coords[key] = xy; ready.push(key); changed = true; }
+          else wx.miss[key] = Date.now();         // unknown city: no icon
+        });
+      });
+    }, Promise.resolve());
+    // 2) current weather, in batches
+    step.then(function () {
+      var chain = Promise.resolve();
+      for (var i = 0; i < ready.length; i += WX_BATCH) {
+        (function (part) { chain = chain.then(function () { return wxForecast(part).then(function (c) { if (c) changed = true; }); }); })(ready.slice(i, i + WX_BATCH));
+      }
+      return chain;
+    }).catch(function () { /* weather is optional: never surface an error */ }).then(function () {
+      wx.busy = false;
+      if (changed) { wxSave(); renderTable(); }
+      if (skipped) ensureWeather();               // cities left over by the geocoding cap
+    });
+  }
+
   /* ---------- Rendering ---------- */
   function applyLang() {
     document.documentElement.lang = lang;
@@ -904,7 +1066,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
         td('name', 'name', esc(c.name)) +
         td('phone', 'nowrap', '<bdi dir="ltr">' + esc(c.phone) + '</bdi>') +
         td('email', 'wide nowrap', '<bdi dir="ltr">' + esc(c.email) + '</bdi>') +
-        td('city', '', esc(c.city)) +
+        td('city', '', esc(c.city) + wxHtml(c.city)) +
         td('lastPurchaseDate', '', '<span class="nowrap">' + esc(fmtDate(c.lastPurchaseDate)) + '</span>' + (active ? '' : '<span class="tag">' + esc(t('inactive')) + '</span>')) +
         td('totalPurchases', 'num nowrap', esc(fmtMoney(c.totalPurchases))) +
         td('lastProduct', '', esc(productLabel(c.lastProduct))) +
@@ -921,8 +1083,12 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
   function renderPromoNote() {
     $('promoNote').innerHTML = esc(t('promoNote', { date: fmtDate(COMPETITOR_CHECK_DATE) })) + ' <a href="' + esc(COMPETITOR_CHECK_URL) + '" target="_blank" rel="noopener">' + esc(t('promoLink')) + '</a>';
   }
+  function renderWxNote() {
+    $('wxNote').innerHTML = esc(t('wxAttrib')) + ' <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a>';
+  }
   function renderFooter() {
     renderPromoNote();
+    renderWxNote();
     $('footer').innerHTML = esc(at ? t('footerAt') : t('footer')) + (storageOk || at ? '' : '<span class="warn-text">' + esc(t('storageOff')) + '</span>');
   }
   function renderMode() {
@@ -933,7 +1099,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     $('btnRefresh').hidden = !at;
     $('btnReset').hidden = !!at;
   }
-  function renderAll() { renderMode(); renderKPIs(); renderHead(); renderTable(); renderFooter(); }
+  function renderAll() { renderMode(); renderKPIs(); renderHead(); renderTable(); renderFooter(); ensureWeather(); }
 
   /* ---------- Toasts ---------- */
   function toast(msg, isError) {
@@ -1331,6 +1497,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
   }
 
   function init() {
+    wxLoad();
     try { var l = localStorage.getItem(LANG_KEY); if (l === 'he' || l === 'en') lang = l; } catch (e) { storageOk = false; }
     try { localStorage.setItem('crd.probe', '1'); localStorage.removeItem('crd.probe'); } catch (e) { storageOk = false; }
     at = readAt();
