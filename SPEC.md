@@ -200,7 +200,7 @@ Each customer is a record with the following fields:
 
 ### 7.12 Weather Icon Beside the City (external API: Open-Meteo)
 
-**Status:** implemented in `index.html` (2026-10-05). **Verification:** tested in a real browser engine (Chromium) against mocked Open-Meteo responses only. Live access to Open-Meteo was **not** verified from the Claude Cloud environment, because the environment's network proxy returned 403 for both Open-Meteo hosts. A check against the live service from a normal browser (Network tab: `api.open-meteo.com/v1/forecast?...&current=weather_code`) is still to be done.
+**Status:** implemented in `index.html` (2026-10-05). **Verification:** (1) Automated tests in a real browser engine (Chromium) against mocked Open-Meteo responses. (2) Live check by the owner in Chrome on the published site (2026-10-05, DevTools Network tab): after deleting `crd.weather.v1` from Local Storage and reloading, a request to `api.open-meteo.com/v1/forecast?...&current=weather_code` returned HTTP 200 and the weather icons appeared. With the cache present, a hard reload sends no Open-Meteo request, by design (30-minute cache). (3) Not verified live: a request to the geocoding host, which is sent only for a city that is not in the built-in list. Live access to Open-Meteo was also **not** verifiable from the Claude Cloud environment, because its network proxy returned 403 for both Open-Meteo hosts.
 
 **What the system does:** for the cities that appear in the customer table, the page calls the Open-Meteo API from the browser, reads the current weather condition, and shows the result as a small icon beside the city name in the existing City column.
 
