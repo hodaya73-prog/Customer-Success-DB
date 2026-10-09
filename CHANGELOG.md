@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here, newest first. See [PRACTICE.md](PRACTICE.md) for how this file is maintained.
 
+## 2026-10-09 (live check of the daily refresh, PRACTICE)
+
+### Changed
+- `PRACTICE.md` brought in line with how the project is actually run: pull requests and merges into `main` happen only when the owner asks, and go through a pull request; the working branch is restarted from the latest `main` after a merge; `SPEC.md` is updated in the same commit when a requirement changes; same-day changelog entries carry a topic in brackets and may include a `Verification` subsection; work outside the repo (Airtable, Apify) must be documented; UI changes are checked at desktop and phone widths in both languages; and live checks of external services are kept apart from mocked ones. No merge permission is granted in advance.
+
+### Verification
+- The owner repeated the live check in Chrome DevTools on the published site after the daily-refresh release (pull request 3). After clearing `crd.weather.v1`, the Network tab (filter `open-meteo`) showed one batched request to `api.open-meteo.com/v1/forecast` with the coordinates of all cities, HTTP 200, type `fetch`, started from the page's own code (the `fetch` call in `index.html`, line 891 of the published file). The weather icons appeared beside the cities, no temperature was shown, and the Airtable connection and KPIs were unchanged.
+- No geocoding request appeared, as expected, because every city is in the built-in list.
+- Still not verified live: a geocoding request for a city that is not in the built-in list (for example "אופקים"), and the 06:00 Israel time rollover against the real service. The rollover was tested only with a fixed clock in the Claude Cloud environment, which cannot reach Open-Meteo (network proxy returns 403).
+
 ## 2026-10-09 (weather refreshed once a day)
 
 ### Changed
