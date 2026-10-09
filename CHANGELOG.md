@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here, newest first. See [PRACTICE.md](PRACTICE.md) for how this file is maintained.
 
+## 2026-10-09 (weather refreshed once a day)
+
+### Changed
+- Weather data is now refreshed once a day, at 06:00 Israel time, instead of being cached for 30 minutes. A stored result is reused until 06:00 Israel time (Asia/Jerusalem, summer and winter time included, whatever time zone the viewer's device uses); the first lookup after 06:00 replaces it. Fewer calls to Open-Meteo, since weather does not need to be re-read every half hour.
+- A tab left open overnight refreshes the weather once when it is shown again after 06:00 (`visibilitychange`). Nothing runs in the background, and the page cannot run at a fixed hour on its own, because it has no server. A true scheduled refresh would need a separate component, for example a scheduled GitHub Action.
+- Failed lookups are still retried after 5 minutes. If the browser cannot work out Israel time, results are reused for 24 hours.
+- `SPEC.md` section 7.12 and acceptance criterion 21 (the console-errors criterion is now 22) updated; the refresh hour and time zone are the constants `WX_DAY_START` and `WX_TZ` in `index.html`.
+
+### Verification
+- Tested in Chromium with a fixed clock: no request at 05:59 Israel time and one request at 06:00, in summer time, winter time, on the night the clocks change (25 Oct 2026) and with the viewer's device set to America/New_York and Asia/Tokyo; a tab open across 06:00 refreshes once. The earlier weather suite (61 checks, mocked Open-Meteo), the regression checks and the layout checks still pass.
+- Not verified live: the new schedule against the real Open-Meteo service (the Claude Cloud environment cannot reach it, network proxy 403).
+
 ## 2026-10-05 (weather icon verified live)
 
 ### Changed

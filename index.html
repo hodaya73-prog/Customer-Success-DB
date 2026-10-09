@@ -786,7 +786,11 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
   var WX_GEO_URL = 'https://geocoding-api.open-meteo.com/v1/search';
   var WX_FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
   var WX_KEY = 'crd.weather.v1';     // cache of city names, coordinates and weather codes only
-  var WX_TTL = 30 * 60 * 1000;       // reuse a result for 30 minutes
+  // Weather is refreshed once a day: a stored result is reused until 06:00 Israel time and replaced by the first
+  // lookup after that. "Day" is measured in Israel time whatever the viewer's time zone (summer/winter time included).
+  var WX_TZ = 'Asia/Jerusalem';
+  var WX_DAY_START = 6;              // hour (Israel time) at which a new weather day begins
+  var WX_FALLBACK_TTL = 24 * 60 * 60 * 1000;   // only used if the browser cannot work out Israel time
   var WX_RETRY = 5 * 60 * 1000;      // after a failure, do not ask again for 5 minutes
   var WX_TIMEOUT = 8000;             // give up on a request after 8 seconds
   var WX_BATCH = 50;                 // locations per forecast request
@@ -832,6 +836,24 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
     var label = esc(t('wx.' + kind));    // condition name only, never a temperature
     return '<span class="wx" role="img" aria-label="' + label + '" title="' + label + '">' + WX_ICONS[kind] + '</span>';
   }
+  // The Israel "weather day" of a moment, as 'YYYY-MM-DD': the Israel calendar date, except that the hours
+  // before 06:00 still belong to the previous day. Returns null if the browser has no Asia/Jerusalem support.
+  var wxFmt = null;
+  function wxDay(ts) {
+    try {
+      wxFmt = wxFmt || new Intl.DateTimeFormat('en-CA', { timeZone: WX_TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' });
+      var p = {};
+      wxFmt.formatToParts(new Date(ts)).forEach(function (x) { p[x.type] = x.value; });
+      var back = (+p.hour % 24) < WX_DAY_START ? 1 : 0;
+      return new Date(Date.UTC(+p.year, +p.month - 1, +p.day - back)).toISOString().slice(0, 10);
+    } catch (e) { return null; }
+  }
+  // True while a result fetched at `ts` is still today's: same weather day as `now`
+  function wxFresh(ts, now) {
+    if (!isFinite(ts)) return false;
+    var a = wxDay(ts), b = wxDay(now);
+    return a && b ? a === b : now - ts < WX_FALLBACK_TTL;
+  }
   function wxKnownCoords(key) {
     var base = has(WX_ALIASES, key) ? WX_ALIASES[key] : key;
     if (has(WX_CITIES, base)) return WX_CITIES[base];
@@ -843,7 +865,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       if (!j || typeof j !== 'object') return;
       Object.keys(j.c || {}).forEach(function (k) {
         var v = j.c[k];
-        if (Array.isArray(v) && wxKind(v[0]) && now - v[1] < WX_TTL) wx.codes[k] = [v[0], v[1]];
+        if (Array.isArray(v) && wxKind(v[0]) && wxFresh(v[1], now)) wx.codes[k] = [v[0], v[1]];
       });
       Object.keys(j.g || {}).forEach(function (k) {
         var v = j.g[k];
@@ -902,7 +924,7 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
       var key = wxKey(c.city);
       if (!key || seen[key]) return;
       seen[key] = 1;
-      if (has(wx.codes, key) && now - wx.codes[key][1] < WX_TTL) return;
+      if (has(wx.codes, key) && wxFresh(wx.codes[key][1], now)) return;
       if (has(wx.miss, key) && now - wx.miss[key] < WX_RETRY) return;
       need.push(key);
     });
@@ -1498,6 +1520,8 @@ C-0040,גדעון סלומון,050-5551520,customer40@example.com,מבשרת צ�
 
   function init() {
     wxLoad();
+    // A tab left open overnight picks up the new day's weather as soon as it is shown again
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) ensureWeather(); });
     try { var l = localStorage.getItem(LANG_KEY); if (l === 'he' || l === 'en') lang = l; } catch (e) { storageOk = false; }
     try { localStorage.setItem('crd.probe', '1'); localStorage.removeItem('crd.probe'); } catch (e) { storageOk = false; }
     at = readAt();
